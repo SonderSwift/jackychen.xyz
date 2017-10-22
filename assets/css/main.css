@@ -1551,7 +1551,7 @@
 /* Basic */
 
 	body {
-		background: #f0f4f4;
+		background: #f0f4f4;/*TODO*/
 		color: #5b5b5b;
 		font-size: 15pt;
 		line-height: 1.85em;
@@ -2177,7 +2177,7 @@
 
 		body.homepage #header:after {
 			content: '';
-			background: #1C0920;
+			background: #000000;
 			display: block;
 			position: absolute;
 			left: 0;
@@ -2378,13 +2378,13 @@
 		position: relative;
 		overflow: hidden;
 		padding: 6em 0 6em 0;
-		background: #2b252c;
+		background: #2b252c;/*TODO*/
 		color: #fff;
 	}
 
 		#footer .icon.circled {
 			background: #fff;
-			color: #2b252c;
+			color: #2b252c;/*TODO*/
 		}
 
 		#footer header {

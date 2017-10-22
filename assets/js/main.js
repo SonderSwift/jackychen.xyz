@@ -244,6 +244,16 @@
 
 			});
 
+			$("#more").click(e=>{
+				e.preventDefault();
+				$("#extra").toggle();
+				if ($("#more").text() === 'Less') {
+					$("#more").text('Continue Reading');
+				} else {
+					$("#more").text("Done");
+				}
+			})
+
 	});
 
 })(jQuery);
