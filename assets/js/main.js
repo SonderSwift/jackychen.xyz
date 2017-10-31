@@ -246,8 +246,8 @@
 
 			$("#more").click(e=>{
 				e.preventDefault();
-				$("#extra").toggle();
-				if ($("#more").text() === 'Less') {
+				$("#extra").toggle('slow');
+				if ($("#more").text() === 'Done') {
 					$("#more").text('Continue Reading');
 				} else {
 					$("#more").text("Done");
