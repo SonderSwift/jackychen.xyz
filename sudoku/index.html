@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Daily Sudoku · Jacky Chen</title>
+<meta name="description" content="A new sudoku every day, the same grid for everyone. Easy, medium and hard, with notes, streaks and no ads.">
+<meta property="og:title" content="Jacky’s Daily Sudoku">
+<meta property="og:description" content="A new grid every day, the same one for everyone.">
+<meta name="theme-color" content="#f5f0e6" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#14120f" media="(prefers-color-scheme: dark)">
+<link rel="icon" href="/assets/img/seal.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,400&amp;family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@500;600&amp;display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@700&amp;text=%E9%99%B3&amp;display=swap">
+<link rel="stylesheet" href="/assets/css/site.css">
+<link rel="stylesheet" href="/assets/css/sudoku.css">
+<script>document.documentElement.classList.add('js');</script>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to the puzzle</a>
+
+<header class="site-header">
+  <div class="wrap">
+    <a class="brand" href="/" aria-label="Jacky Chen, home">
+      <span class="seal" aria-hidden="true">陳</span>
+      <span class="brand-name">Jacky Chen</span>
+    </a>
+    <nav class="site-nav" aria-label="Main">
+      <a href="/">Home</a>
+      <a href="/about/">About</a>
+      <a href="/archive/">Archive</a>
+      <a href="/sudoku/" aria-current="page">Sudoku</a>
+    </nav>
+  </div>
+</header>
+
+<main id="main" class="wrap sudoku-page">
+  <div class="sudoku-head">
+    <div>
+      <p class="eyebrow">Daily Sudoku</p>
+      <h1 class="display" data-date-label>Today</h1>
+    </div>
+    <div class="date-nav" aria-label="Change day">
+      <a class="icon-btn" href="#" data-prev aria-label="Previous day">‹</a>
+      <a class="today-link" href="/sudoku/" data-today>Today</a>
+      <a class="icon-btn" href="#" data-next aria-label="Next day">›</a>
+    </div>
+  </div>
+
+  <div class="levels" role="group" aria-label="Difficulty">
+    <button type="button" data-level="easy" aria-pressed="false">Easy</button>
+    <button type="button" data-level="medium" aria-pressed="true">Medium</button>
+    <button type="button" data-level="hard" aria-pressed="false">Hard</button>
+  </div>
+
+  <div class="play">
+    <div class="board-wrap">
+      <div class="board" role="group" aria-label="Sudoku board. Use arrow keys to move and 1 to 9 to fill." data-board></div>
+      <div class="paused" data-paused hidden>
+        <p>Paused</p>
+        <button class="btn btn--solid" type="button" data-resume>Resume</button>
+      </div>
+      <noscript><p class="noscript">The daily sudoku needs JavaScript to generate today’s grid.</p></noscript>
+    </div>
+
+    <aside class="panel" aria-label="Controls">
+      <div class="clock">
+        <span class="time" data-time aria-label="Elapsed time">0:00</span>
+        <button class="icon-btn" type="button" data-pause aria-label="Pause"><svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><rect x="2.5" y="2" width="3" height="10" rx="1" fill="currentColor"/><rect x="8.5" y="2" width="3" height="10" rx="1" fill="currentColor"/></svg></button>
+      </div>
+
+      <div class="pad" role="group" aria-label="Numbers" data-pad></div>
+
+      <div class="tools">
+        <button class="tool" type="button" data-notes aria-pressed="false"><span>Notes</span><kbd>N</kbd></button>
+        <button class="tool" type="button" data-erase><span>Erase</span><kbd>⌫</kbd></button>
+        <button class="tool" type="button" data-undo><span>Undo</span><kbd>U</kbd></button>
+      </div>
+
+      <p class="status" role="status" aria-live="polite" data-status></p>
+
+      <div class="done-actions" data-done hidden>
+        <button class="btn btn--solid" type="button" data-share>Share result</button>
+      </div>
+
+      <dl class="stats">
+        <div><dt>Streak</dt><dd data-streak>0 days</dd></div>
+        <div><dt>Best</dt><dd data-best>—</dd></div>
+        <div><dt>Clues</dt><dd data-clues>—</dd></div>
+      </dl>
+
+      <details class="help">
+        <summary>How to play &amp; shortcuts</summary>
+        <p>Fill every row, column and 3×3 box with the digits 1–9. Everyone gets the same puzzles each day; Easy and Medium can be finished with basic logic, Hard needs a bit more.</p>
+        <ul>
+          <li><kbd>1</kbd>–<kbd>9</kbd> place a digit · <kbd>Shift</kbd> + digit adds a note</li>
+          <li>Arrow keys move · <kbd>⌫</kbd> erases · <kbd>N</kbd> toggles notes · <kbd>U</kbd> undoes</li>
+        </ul>
+        <button class="reset" type="button" data-reset>Reset this puzzle</button>
+      </details>
+    </aside>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <span class="made"><span class="seal seal--sm" aria-hidden="true">陳</span>Progress is saved in this browser only.</span>
+    <nav class="links" aria-label="Elsewhere">
+      <a href="/">Home</a>
+      <a href="https://github.com/jackychen8">GitHub</a>
+      <a href="https://thetimeskip.substack.com">Substack</a>
+    </nav>
+  </div>
+</footer>
+
+<script type="module" src="/assets/js/sudoku/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>About · Jacky Chen</title>
+<meta name="description" content="About Jacky Chen: engineer, filmmaker and founder of Saga. Where I come from, what I’ve worked on, and how to find me.">
+<meta name="theme-color" content="#f5f0e6" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#14120f" media="(prefers-color-scheme: dark)">
+<link rel="icon" href="/assets/img/seal.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,400&amp;family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@500;600&amp;display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@700&amp;text=%E9%99%B3&amp;display=swap">
+<link rel="stylesheet" href="/assets/css/site.css">
+<style>
+  .about-hero { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 0.9fr); gap: clamp(24px, 5vw, 64px); align-items: end; }
+  @media (max-width: 860px) { .about-hero { grid-template-columns: 1fr; } }
+  .about-hero figure { margin: 0; }
+  .about-hero img { width: 100%; aspect-ratio: 3 / 2; object-fit: cover; }
+  .about-hero figcaption { margin-top: 8px; font: 500 10.5px/1.3 var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
+  .about-body { display: grid; grid-template-columns: minmax(0, 1fr) 260px; gap: clamp(24px, 5vw, 72px); margin-top: 48px; }
+  @media (max-width: 860px) { .about-body { grid-template-columns: 1fr; } }
+  .facts { align-self: start; position: sticky; top: 20px; border-top: 2px solid var(--ink); padding-top: 16px; display: grid; gap: 16px; font-size: 15px; }
+  .facts dt { font: 500 10.5px/1 var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--muted); margin-bottom: 4px; }
+  .facts dd { margin: 0; }
+  .facts .han { font: 700 1em/1 var(--han); }
+</style>
+<script>document.documentElement.classList.add('js');</script>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+
+<header class="site-header">
+  <div class="wrap">
+    <a class="brand" href="/" aria-label="Jacky Chen, home">
+      <span class="seal" aria-hidden="true">陳</span>
+      <span class="brand-name">Jacky Chen</span>
+    </a>
+    <nav class="site-nav" aria-label="Main">
+      <a href="/">Home</a>
+      <a href="/about/" aria-current="page">About</a>
+      <a href="/archive/">Archive</a>
+      <a href="/sudoku/">Sudoku</a>
+    </nav>
+  </div>
+</header>
+
+<main id="main" class="wrap">
+  <section class="page-head about-hero">
+    <div style="display:grid; gap:18px">
+      <p class="eyebrow">About</p>
+      <h1 class="display">Hi, I’m Jacky.</h1>
+      <p class="lede">An engineer, filmmaker and lifelong tinkerer in Oakland, California. I’m building Saga, an AI director for shared experiences. I like making things that help people notice each other.</p>
+    </div>
+    <figure>
+      <img src="/assets/img/waterfall-960.jpg" srcset="/assets/img/waterfall-960.jpg 960w, /assets/img/waterfall-1600.jpg 1600w" sizes="(max-width: 860px) 100vw, 520px" alt="Jacky in close-up, eyes closed, beside a waterfall in a green forest" width="960" height="640">
+      <figcaption>Somewhere quiet</figcaption>
+    </figure>
+  </section>
+
+  <div class="about-body">
+    <div class="prose">
+      <h2>Where I come from</h2>
+      <p>I grew up in Arizona, the oldest of five kids. My parents came to the US as teenagers with very little, then each started a business, a Chinese fast-food restaurant and a salon, and worked seventy to ninety hours a week for much of my childhood. Helping raise my siblings gave me a lot of my confidence early on.</p>
+      <p>In third grade I decided I would become an inventor. It took me a while to learn that the job title is “engineer.” Somewhere in there I also started making videos, and eventually founded my high school’s Media Productions club.</p>
+      <p>For a long time I believed in what I later called an <a href="/archive/#unbreakable-law">“unbreakable law”</a>: that the best schools, and the bigger version of a life, weren’t meant for kids like me. Junior year of high school I stopped believing it. I sent two cameras to near-space on a weather balloon, got rejected from seven of eight colleges, appealed, and ended up studying electrical and computer engineering at USC.</p>
+
+      <h2>What I’ve worked on</h2>
+      <p>Since graduating in 2016, I’ve started out at Cisco, built microservices at NVXL, drone flight-authorization tools at Airbus UTM, lab systems at Invitae, and an app for more thoughtful interactions at Sonder Social, a startup I founded. Most recently I spent four years at Amazon as a tech lead, building an AI document-processing service and the evaluation framework around it.</p>
+      <p>In 2026 I left Amazon to build Saga full-time. It’s the first job that uses all of me at once: the engineer, the kid making videos, and the person who once hosted a party for eighty-plus friends.</p>
+
+      <h2>What I care about</h2>
+      <p>AI safety and where the technology is headed. Storytelling, and what makes a memory worth keeping. The Chinese diaspora and families like mine. Building things with my hands. Treating people as if their lives are as vivid and complicated as my own, because they are. There’s a word for that last one: <em>sonder</em>. It’s been my handle for years.</p>
+      <p>The longer, earlier versions of all this live in the <a href="/archive/">archive</a>, in my own words from 2009 onward.</p>
+    </div>
+
+    <aside>
+      <dl class="facts">
+        <div><dt>Now</dt><dd>Founder, <a href="https://saga.you">Saga</a></dd></div>
+        <div><dt>Before</dt><dd>Amazon · Invitae · Sonder Social · Airbus UTM · NVXL · Cisco</dd></div>
+        <div><dt>Studied</dt><dd>B.S. Electrical &amp; Computer Engineering, USC, 2016</dd></div>
+        <div><dt>Based</dt><dd>Oakland, CA</dd></div>
+        <div><dt>Name</dt><dd>Jacky Chen · <span class="han" lang="zh-Hant">陳</span></dd></div>
+        <div><dt>Elsewhere</dt><dd><a href="https://www.linkedin.com/in/jackychen8/">LinkedIn</a> · <a href="https://github.com/jackychen8">GitHub</a> · <a href="https://thetimeskip.substack.com">Substack</a></dd></div>
+      </dl>
+    </aside>
+  </div>
+
+  <section class="section">
+    <div class="section-head">
+      <p class="scene">The long version</p>
+      <h2 class="section-title">Work</h2>
+    </div>
+    <ol class="timeline">
+      <li><span class="when">2026 – now</span><span class="what"><b>Founder, Saga</b><span>An AI director that turns everyone’s photos and videos from an event into one film: multi-agent media pipeline, Saga Eval Lab, and Fleet-OS, an open-source multi-agent coding runtime.</span></span></li>
+      <li><span class="when">2022 – 2026</span><span class="what"><b>Software Development Engineer &amp; Tech Lead, Amazon</b><span>Led an automated document-processing service using OCR and LLMs, with an evaluation framework driven by human feedback. Led security certification work for PII, PHI and generative AI services.</span></span></li>
+      <li><span class="when">2021 – 2022</span><span class="what"><b>Fullstack Engineer, Invitae</b><span>Tech lead for algorithmic sequencing batch optimization and a cross-team migration of five million images.</span></span></li>
+      <li><span class="when">2019 – 2021</span><span class="what"><b>Founder, Sonder Social</b><span>An app that nudges and facilitates thoughtful interactions, taken from idea to alpha to open beta.</span></span></li>
+      <li><span class="when">2019 – 2020</span><span class="what"><b>Fullstack Engineer, Airbus UTM</b><span>Public APIs for drone flight-plan assessment and authorization with the FAA.</span></span></li>
+      <li><span class="when">2018 – 2019</span><span class="what"><b>Senior Fullstack Engineer &amp; Architect, NVXL</b><span>Web apps and a microservices architecture shipped as Python and Debian packages.</span></span></li>
+      <li><span class="when">2016 – 2018</span><span class="what"><b>Software Engineer, Cisco</b><span>My first job out of school.</span></span></li>
+      <li><span class="when">2016</span><span class="what"><b>B.S. Electrical &amp; Computer Engineering, University of Southern California</b><span>Fight On.</span></span></li>
+    </ol>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <span class="made"><span class="seal seal--sm" aria-hidden="true">陳</span>© 2026 Jacky Chen</span>
+    <nav class="links" aria-label="Elsewhere">
+      <a href="https://github.com/jackychen8">GitHub</a>
+      <a href="https://www.linkedin.com/in/jackychen8/">LinkedIn</a>
+      <a href="https://thetimeskip.substack.com">Substack</a>
+      <a href="https://saga.you">Saga</a>
+    </nav>
+  </div>
+</footer>
+</body>
+</html>
