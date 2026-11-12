@@ -10,6 +10,16 @@ initTimecode();
 const light = document.querySelector('#light');
 if (light) initLight(light);
 
+// Muted looping clips play only while on screen; with reduced motion they get controls instead.
+const calm = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+document.querySelectorAll('video[data-autoplay]').forEach((v) => {
+  if (calm || !('IntersectionObserver' in window)) { v.controls = true; return; }
+  new IntersectionObserver(([e]) => {
+    if (e.isIntersecting) v.play().catch(() => { v.controls = true; });
+    else v.pause();
+  }, { threshold: 0.35 }).observe(v);
+});
+
 // Mini preview of today's medium puzzle.
 const mini = document.querySelector('[data-mini-sudoku]');
 if (mini) {

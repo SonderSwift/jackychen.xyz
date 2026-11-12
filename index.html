@@ -102,7 +102,7 @@
     </div>
     <ol class="made-list reveal">
       <li><a href="https://saga.you"><span class="year">Now</span><span class="title">Saga</span><span class="kind">App · AI <span class="arrow">↗</span></span><span class="desc">An AI director for shared experiences. Multi-model agent graphs handle multimodal analysis, transcription, moment selection, edit planning and rendering.</span></a></li>
-      <li><a href="#light"><span class="year">Now</span><span class="title">LED pieces, including a heart you can hold</span><span class="kind">Hardware · Art <span class="arrow">↓</span></span><span class="desc">A few wiring-heavy light pieces. The interactive one is a heart: about 300 addressable LEDs and a touch sensor that charge, glow and beat when you hold on. Try the simulation below.</span></a></li>
+      <li><a href="#light"><span class="year">Now</span><span class="title">LED pieces, including a heart you can climb</span><span class="kind">Hardware · Art <span class="arrow">↓</span></span><span class="desc">A few wiring-heavy light pieces. The interactive one is a walk-in wooden heart outlined in addressable LEDs: touch it and the light charges, glows and starts to beat. Photos, a bench test, and a simulation below.</span></a></li>
       <li><div class="row"><span class="year">2026</span><span class="title">Saga Eval Lab</span><span class="kind">Research tool</span><span class="desc">Tools for labeling footage, reviewing outputs and comparing models on creative-judgment rubrics, negative results included.</span></div></li>
       <li><a href="https://github.com/Circe-Saga/Fleet-OS"><span class="year">2026</span><span class="title">Fleet-OS</span><span class="kind">Open source <span class="arrow">↗</span></span><span class="desc">A multi-agent coding runtime: persistent task coordination, isolated worktrees, resumable workers, cost tracking, and evidence checks before anything counts as done.</span></a></li>
       <li><div class="row"><span class="year">2022–26</span><span class="title">Document AI at Amazon</span><span class="kind">Software</span><span class="desc">Tech lead for a multi-tenant, self-service document-processing service: OCR, LLMs, agents, and an evaluation framework that improves with human feedback.</span></div></li>
@@ -126,7 +126,7 @@
       <div class="light-copy">
         <p class="scene">Sc. 03 — The light</p>
         <h2>Hold <em>the heart.</em></h2>
-        <p>I’ve built a few LED pieces. This is the interactive one: a heart with <strong>about 300 addressable LEDs</strong> and a touch sensor. Left alone, it twinkles through the rainbow. Hold it and a warm charge climbs from the tip of the heart to the top. Keep holding and it starts to beat. Let go, and it drains away.</p>
+        <p>I’ve built a few LED pieces. This is the interactive one: <strong>a heart big enough to climb</strong>, outlined in addressable LEDs, with a touch sensor. Left alone, it twinkles through the rainbow. Touch it and a warm charge climbs from the tip of the heart to the top. Keep holding on and it starts to beat. Let go, and it drains away.</p>
         <ul class="states" data-light-states>
           <li data-state="idle"><span class="swatch" style="background: conic-gradient(#f44, #fd4, #4f8, #4af, #c4f, #f44)"></span><b>Idle</b><span>Rainbow twinkle</span></li>
           <li data-state="charging"><span class="swatch" style="background:#ff8a2a"></span><b>Charging</b><span>Warm light climbs the heart</span></li>
@@ -134,7 +134,37 @@
           <li data-state="draining"><span class="swatch" style="background:#7a2a12"></span><b>Release</b><span>The charge drains back down</span></li>
         </ul>
         <button class="btn hold-btn" type="button" data-light-hold>Hold to charge</button>
-        <p class="fineprint">This is a browser re-creation of the piece’s behavior, debounce included: a touch only counts after it’s been steady for a moment.</p>
+        <p class="fineprint">This is a simplified browser re-creation of the piece’s behavior with 300 LEDs, debounce included: a touch only counts after it’s been steady for a moment.</p>
+      </div>
+    </div>
+
+    <div class="wrap heart-real" data-gallery>
+      <p class="scene">The real thing</p>
+      <figure class="frame heart-wide reveal">
+        <button type="button" data-full="/assets/img/heart-night-1600.jpg" aria-label="Enlarge photo: the heart lit up at night">
+          <img src="/assets/img/heart-night-960.jpg" srcset="/assets/img/heart-night-960.jpg 960w, /assets/img/heart-night-1600.jpg 1600w" sizes="(max-width: 1120px) 100vw, 1024px" alt="The wooden heart at night, its two lobes outlined in glowing red, amber, blue and teal LEDs, with people sitting on its frame" width="960" height="493" loading="lazy">
+        </button>
+        <figcaption><span>Lit up · Oct 2026</span><span>▸</span></figcaption>
+      </figure>
+      <div class="heart-row">
+        <figure class="frame heart-day reveal">
+          <button type="button" data-full="/assets/img/heart-day-960.jpg" aria-label="Enlarge photo: the heart frame on a trailer">
+            <img src="/assets/img/heart-day-960.jpg" alt="The unlit wooden heart frame strapped to a trailer beside a brick warehouse" width="960" height="870" loading="lazy">
+          </button>
+          <figcaption><span>On the trailer, before the lights</span><span>▸</span></figcaption>
+        </figure>
+        <div class="heart-stack">
+          <figure class="frame heart-video reveal">
+            <video src="/assets/video/heart-bench.mp4" poster="/assets/img/heart-bench-poster.jpg" muted loop playsinline preload="none" data-autoplay aria-label="Bench test: a hand rests on a metal touch plate and a reel of LED strip glows orange, then pulses red"></video>
+            <figcaption><span>Bench test: hand on the touch plate, strip charging</span><span>0:16</span></figcaption>
+          </figure>
+          <figure class="frame reveal">
+            <button type="button" data-full="/assets/img/heart-night-2-960.jpg" aria-label="Enlarge photo: the heart in purple and green">
+              <img src="/assets/img/heart-night-2-960.jpg" alt="The heart’s lobes glowing purple and green at night" width="960" height="530" loading="lazy">
+            </button>
+            <figcaption><span>Another color mode</span><span>▸</span></figcaption>
+          </figure>
+        </div>
       </div>
     </div>
   </section>

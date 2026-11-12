@@ -296,6 +296,16 @@ button { font: inherit; color: inherit; }
 .light-copy .hold-btn:hover, .light-copy .hold-btn.pressed { background: var(--amber); border-color: var(--amber); color: #1a1208; }
 .fineprint { font-size: 13.5px; color: var(--night-muted); }
 
+/* The real heart: photos + bench-test video */
+.heart-real { margin-top: clamp(48px, 7vw, 88px); display: grid; gap: 18px; }
+.heart-wide img { aspect-ratio: 960 / 493; }
+.heart-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.55fr); gap: 18px; align-items: start; }
+@media (max-width: 760px) { .heart-row { grid-template-columns: 1fr; } }
+.heart-day img { aspect-ratio: 960 / 870; }
+.heart-stack { display: grid; gap: 18px; }
+.heart-video video { width: 100%; aspect-ratio: 1280 / 454; object-fit: cover; background: #000; border-radius: 2px; }
+.heart-stack .frame img { aspect-ratio: 960 / 530; }
+
 /* Film reel */
 .reel { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 22px; }
 @media (max-width: 900px) { .reel { grid-template-columns: 1fr; max-width: 560px; } }
