@@ -57,6 +57,7 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 img, video, canvas, iframe { display: block; max-width: 100%; }
+img { height: auto; }
 a { color: var(--accent); text-underline-offset: 0.18em; text-decoration-thickness: 1px; }
 a:hover { color: var(--accent-strong); }
 :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 2px; }
@@ -298,13 +299,13 @@ button { font: inherit; color: inherit; }
 
 /* The real heart: photos + bench-test video */
 .heart-real { margin-top: clamp(48px, 7vw, 88px); display: grid; gap: 18px; }
-.heart-wide img { aspect-ratio: 960 / 493; }
+.heart-wide img { aspect-ratio: 4 / 3; }
 .heart-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.55fr); gap: 18px; align-items: start; }
 @media (max-width: 760px) { .heart-row { grid-template-columns: 1fr; } }
 .heart-day img { aspect-ratio: 960 / 870; }
 .heart-stack { display: grid; gap: 18px; }
 .heart-video video { width: 100%; aspect-ratio: 1280 / 454; object-fit: cover; background: #000; border-radius: 2px; }
-.heart-stack .frame img { aspect-ratio: 960 / 530; }
+.heart-stack .frame img { aspect-ratio: 4 / 3; }
 
 /* Film reel */
 .reel { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 22px; }
@@ -337,6 +338,16 @@ button { font: inherit; color: inherit; }
 /* Credits */
 .credits { margin-top: 64px; padding-top: 28px; border-top: 1px solid var(--night-rule); text-align: center; display: grid; gap: 6px; }
 .credits p { font: 500 11px/1.9 var(--mono); letter-spacing: .18em; text-transform: uppercase; color: var(--night-muted); }
+
+/* ---- photo grid ------------------------------------------------------------------------------------------ */
+.photo-grid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 14px; }
+.pg-bike { grid-column: 9 / span 4; }
+.pg-bike img { aspect-ratio: 2 / 3; object-fit: cover; }
+.pg-clouds { grid-column: 1 / span 8; } .pg-clouds img { aspect-ratio: 4 / 3; }
+@media (max-width: 760px) {
+  .pg-bike, .pg-clouds { grid-column: 1 / -1; }
+  .pg-bike img { aspect-ratio: 2 / 3; height: auto; }
+}
 
 /* ---- interests ----------------------------------------------------------------------------------- */
 .featured { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(20px, 3vw, 36px); }
