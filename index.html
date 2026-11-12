@@ -87,8 +87,9 @@
         </div>
       </article>
       <aside class="now-aside reveal">
-        <blockquote>The hard part isn’t picking pretty shots. It’s knowing which moments matter to the people who were there.</blockquote>
-        <p>I’m building it end to end: multi-agent editing pipelines, an evaluation lab for creative judgment, and the iOS app. It turns out to be the place where everything else on this page meets: engineering, film, and people.</p>
+        <p class="scene">The question underneath it</p>
+        <blockquote>How can a machine tell which moments matter to the people who were there, and not just which ones look good?</blockquote>
+        <p>I’m building it end to end: the multi-agent editing pipeline, an evaluation lab for creative judgment, and the iOS app. I think it’s the first project that uses everything on this page at once: engineering, film, and people.</p>
       </aside>
     </div>
   </section>
@@ -101,9 +102,9 @@
     </div>
     <ol class="made-list reveal">
       <li><a href="https://saga.you"><span class="year">Now</span><span class="title">Saga</span><span class="kind">App · AI <span class="arrow">↗</span></span><span class="desc">An AI director for shared experiences. Multi-model agent graphs handle multimodal analysis, transcription, moment selection, edit planning and rendering.</span></a></li>
-      <li><a href="#light"><span class="year">Now</span><span class="title">A light you can hold</span><span class="kind">Hardware · Art <span class="arrow">↓</span></span><span class="desc">About 300 addressable LEDs and a touch sensor that charge, glow and beat like a heart when you hold on. Try the simulation below.</span></a></li>
+      <li><a href="#light"><span class="year">Now</span><span class="title">LED pieces, including a heart you can hold</span><span class="kind">Hardware · Art <span class="arrow">↓</span></span><span class="desc">A few wiring-heavy light pieces. The interactive one is a heart: about 300 addressable LEDs and a touch sensor that charge, glow and beat when you hold on. Try the simulation below.</span></a></li>
       <li><div class="row"><span class="year">2026</span><span class="title">Saga Eval Lab</span><span class="kind">Research tool</span><span class="desc">Tools for labeling footage, reviewing outputs and comparing models on creative-judgment rubrics, negative results included.</span></div></li>
-      <li><div class="row"><span class="year">2026</span><span class="title">Fleet-OS</span><span class="kind">Open source</span><span class="desc">A multi-agent coding runtime: persistent task coordination, isolated worktrees, resumable workers, cost tracking, and evidence checks before anything counts as done.</span></div></li>
+      <li><a href="https://github.com/Circe-Saga/Fleet-OS"><span class="year">2026</span><span class="title">Fleet-OS</span><span class="kind">Open source <span class="arrow">↗</span></span><span class="desc">A multi-agent coding runtime: persistent task coordination, isolated worktrees, resumable workers, cost tracking, and evidence checks before anything counts as done.</span></a></li>
       <li><div class="row"><span class="year">2022–26</span><span class="title">Document AI at Amazon</span><span class="kind">Software</span><span class="desc">Tech lead for a multi-tenant, self-service document-processing service: OCR, LLMs, agents, and an evaluation framework that improves with human feedback.</span></div></li>
       <li><div class="row"><span class="year">2019–21</span><span class="title">Sonder Social</span><span class="kind">App</span><span class="desc">An app that nudges and facilitates thoughtful interactions. I led a small team from first commit through alpha and open beta.</span></div></li>
       <li><div class="row"><span class="year">—</span><span class="title">A DIY electric bike</span><span class="kind">Hardware</span><span class="desc">Built from parts.</span></div></li>
@@ -117,18 +118,18 @@
   <!-- ===== The Light (night) ===== -->
   <section class="night" id="light" data-scene-label="SC. 03" data-night>
     <div class="wrap light">
-      <div class="light-stage" data-light role="img" aria-label="Simulated LED light strip. Press and hold to charge it.">
+      <div class="light-stage" data-light role="img" aria-label="Simulated LED heart. Press and hold to charge it.">
         <canvas></canvas>
         <p class="hint">Press &amp; hold</p>
         <div class="hud"><span data-light-state>Idle</span><span data-light-charge>Charge 0%</span></div>
       </div>
       <div class="light-copy">
         <p class="scene">Sc. 03 — The light</p>
-        <h2>Hold <em>the light.</em></h2>
-        <p>A touch-reactive LED piece I’ve been building: <strong>about 300 addressable LEDs</strong> and a touch sensor. Left alone, it twinkles through the rainbow. Hold it and a warm charge climbs the strip. Keep holding and it starts to beat like a heart. Let go, and it drains away.</p>
+        <h2>Hold <em>the heart.</em></h2>
+        <p>I’ve built a few LED pieces. This is the interactive one: a heart with <strong>about 300 addressable LEDs</strong> and a touch sensor. Left alone, it twinkles through the rainbow. Hold it and a warm charge climbs from the tip of the heart to the top. Keep holding and it starts to beat. Let go, and it drains away.</p>
         <ul class="states" data-light-states>
           <li data-state="idle"><span class="swatch" style="background: conic-gradient(#f44, #fd4, #4f8, #4af, #c4f, #f44)"></span><b>Idle</b><span>Rainbow twinkle</span></li>
-          <li data-state="charging"><span class="swatch" style="background:#ff8a2a"></span><b>Charging</b><span>Warm light climbs the strip</span></li>
+          <li data-state="charging"><span class="swatch" style="background:#ff8a2a"></span><b>Charging</b><span>Warm light climbs the heart</span></li>
           <li data-state="full"><span class="swatch" style="background:#e3192b"></span><b>Full</b><span>A red heartbeat</span></li>
           <li data-state="draining"><span class="swatch" style="background:#7a2a12"></span><b>Release</b><span>The charge drains back down</span></li>
         </ul>
@@ -178,23 +179,24 @@
     <div class="featured">
       <article class="feature reveal">
         <span class="num">01</span>
-        <h3>AI safety &amp; futurism</h3>
-        <p>I study interpretability, red-teaming and evals, and think a lot about the bottlenecks ahead: compute, energy, data, and whether we’ll understand what we’ve built. In college I wrote about nuclear safety. The questions rhyme.</p>
+        <h3>AI safety &amp; an abundant future for all</h3>
+        <p>Thinking about how we navigate to an abundant future for everyone, not just a few. I study interpretability, red-teaming and evals, and the practical bottlenecks: compute, energy, data, and whether we actually understand what we’re building. At USC I wrote a paper on nuclear safety, and a lot of the same questions apply.</p>
       </article>
       <article class="feature reveal">
         <span class="num">02</span>
         <h3>Storytelling &amp; memory</h3>
-        <p>From a high school media club to Saga, I keep coming back to the same question: what makes a moment worth remembering, and to whom?</p>
+        <p>I’ve been making videos since grade school, and now I build software that edits them. The question underneath both is the same: what makes a moment worth remembering, and to whom?</p>
       </article>
       <article class="feature reveal">
         <span class="num">03</span>
         <h3>The Chinese diaspora</h3>
-        <p>My parents came to the US as teenagers with very little and built two businesses from scratch. I’m drawn to the stories of families like ours: what gets carried across, what gets lost, and what gets remade.</p>
+        <p>Both of my parents came to the US as teenage immigrants with very little and each started their own business. I’m interested in the stories of families like ours, including my own.</p>
       </article>
     </div>
     <div class="also reveal">
       <div><h4>Photography</h4><p>Candid moments and good light, on a Sony mirrorless.</p></div>
       <div><h4>Things that light up</h4><p>LEDs, sensors, an e-bike, and whatever’s next on the bench.</p></div>
+      <div><h4>Healthspan &amp; longevity</h4><p>Small changes, applied consistently, observed patiently. I learned that from my house plants. <a href="https://thetimeskip.substack.com/p/what-aging-means-to-me">I wrote about it</a>.</p></div>
       <div><h4>Physics &amp; energy</h4><p>Nuclear safety and the energy problem, since my USC days.</p></div>
       <div><h4>Travel &amp; languages</h4><p>About twenty countries so far. Working on Mandarin and Spanish.</p></div>
       <div><h4>Cooking &amp; hosting</h4><p>Long dinners, game nights, and bringing people together.</p></div>

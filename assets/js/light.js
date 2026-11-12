@@ -1,7 +1,7 @@
-// "Hold the light": a browser re-creation of a touch-reactive LED piece.
-// ~300 addressable LEDs laid out as a serpentine strip in six columns.
+// "Hold the heart": a browser re-creation of a touch-reactive LED heart.
+// ~300 addressable LEDs on one strip wound into concentric heart outlines.
 //   idle      rainbow twinkle
-//   charging  warm light climbs the strip while you hold
+//   charging  warm light climbs from the tip of the heart while you hold
 //   full      red heartbeat once fully charged
 //   draining  charge falls back down after release
 // Touch is debounced like the hardware: press must be stable for PRESS_MS,
@@ -9,9 +9,47 @@
 
 import { reducedMotion } from './site.js';
 
-const COLS = 6;
-const PER_COL = 50;
-const N = COLS * PER_COL; // 300
+const N = 300;
+const RING_SCALES = [1, 0.78, 0.56, 0.34];
+const RING_COUNTS = (() => {
+  const total = RING_SCALES.reduce((a, b) => a + b, 0);
+  const c = RING_SCALES.map((s) => Math.round((N * s) / total));
+  c[0] += N - c.reduce((a, b) => a + b, 0);
+  return c;
+})();
+const Y_MIN = -17, Y_MAX = 12.2, Y_MID = (Y_MIN + Y_MAX) / 2;
+const RING_CY = -6; // inner rings shrink toward this point so gaps at the dip and the tip match
+const heartPt = (t) => [
+  16 * Math.sin(t) ** 3,
+  13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t),
+];
+// Arc-length table so LEDs sit evenly along the curve, starting at the tip (t = π).
+const SAMPLES = 2400;
+const ARC = (() => {
+  const pts = [], cum = [0];
+  for (let k = 0; k <= SAMPLES; k++) pts.push(heartPt(Math.PI + (k / SAMPLES) * Math.PI * 2));
+  for (let k = 1; k <= SAMPLES; k++) cum.push(cum[k - 1] + Math.hypot(pts[k][0] - pts[k - 1][0], pts[k][1] - pts[k - 1][1]));
+  return { pts, cum };
+})();
+const HEART_LEN = ARC.cum[SAMPLES];
+function pointAt(s) {
+  let lo = 0, hi = SAMPLES;
+  while (lo < hi) { const mid = (lo + hi) >> 1; if (ARC.cum[mid] < s) lo = mid + 1; else hi = mid; }
+  return ARC.pts[lo];
+}
+function buildHeart() {
+  const out = [];
+  RING_SCALES.forEach((scale, ring) => {
+    const n = RING_COUNTS[ring];
+    for (let j = 0; j < n; j++) {
+      const k = ring % 2 === 0 ? j : n - 1 - j;           // serpentine: alternate direction per ring
+      const [x, y] = pointAt(((k + 0.5) / n) * HEART_LEN);
+      const ux = x * scale, uy = RING_CY + (y - RING_CY) * scale;
+      out.push({ ux, uy, h: (uy - Y_MIN) / (Y_MAX - Y_MIN), x: 0, y: 0, spark: 0 });
+    }
+  });
+  return out;
+}
 const PRESS_MS = 60;
 const RELEASE_MS = 140;
 const CHARGE_S = 2.6;
@@ -31,15 +69,10 @@ export function initLight(section) {
   const holdBtn = section.querySelector('[data-light-hold]');
   const calm = reducedMotion();
 
-  // LED model: height 0 (bottom) .. 1 (top), strip index i follows a serpentine path.
-  const leds = [];
-  for (let c = 0; c < COLS; c++) {
-    for (let k = 0; k < PER_COL; k++) {
-      const up = c % 2 === 0;
-      const h = up ? k / (PER_COL - 1) : 1 - k / (PER_COL - 1);
-      leds.push({ col: c, h, x: 0, y: 0, spark: 0 });
-    }
-  }
+  // LED model: one strip wound into concentric heart outlines, each starting at the tip.
+  // ux/uy are heart-curve units; h is height from the tip (0) to the top of the lobes (1).
+  const leds = buildHeart();
+  const outerSpacing = HEART_LEN / RING_COUNTS[0];
 
   let w = 0, hgt = 0, r = 2, dpr = 1;
   function layout() {
@@ -48,13 +81,13 @@ export function initLight(section) {
     w = Math.max(1, Math.round(rect.width * dpr));
     hgt = Math.max(1, Math.round(rect.height * dpr));
     canvas.width = w; canvas.height = hgt;
-    const padY = hgt * 0.1, spanY = hgt * 0.78;
-    const gap = Math.min(w * 0.11, 70 * dpr);
+    const unit = Math.min((w * 0.82) / 32, (hgt * 0.7) / (Y_MAX - Y_MIN));
+    const cx = w / 2, cy = hgt * 0.47;
     for (const led of leds) {
-      led.x = w / 2 + (led.col - (COLS - 1) / 2) * gap;
-      led.y = padY + (1 - led.h) * spanY;
+      led.x = cx + led.ux * unit;
+      led.y = cy - (led.uy - Y_MID) * unit;
     }
-    r = Math.max(1.8 * dpr, (spanY / PER_COL) * 0.36);
+    r = Math.max(1.6 * dpr, outerSpacing * unit * 0.3);
   }
 
   // ---- input with debounce ----------------------------------------------------
