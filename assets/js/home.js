@@ -1,11 +1,10 @@
-import { initReveal, initLightbox, initVideos, initTimecode } from './site.js';
+import { initReveal, initLightbox, initVideos } from './site.js';
 import { initLight } from './light.js';
 import { generateDaily, todayISO } from './sudoku/engine.mjs';
 
 initReveal();
 initLightbox();
 initVideos();
-initTimecode();
 
 const light = document.querySelector('#light');
 if (light) initLight(light);

@@ -54,32 +54,3 @@ export function initVideos() {
     });
   });
 }
-
-// A camera-style timecode that advances as you scroll (100px ≈ 1 second at 24 fps)
-// and names the current "scene". Purely decorative (aria-hidden).
-export function initTimecode() {
-  const el = document.querySelector('.timecode');
-  if (!el) return;
-  const tc = el.querySelector('[data-timecode]');
-  const sc = el.querySelector('[data-scene]');
-  const scenes = [...document.querySelectorAll('[data-scene-label]')];
-  const pad = (n) => String(n).padStart(2, '0');
-  let queued = false;
-  const update = () => {
-    queued = false;
-    const frames = Math.floor((window.scrollY / 100) * 24);
-    const f = frames % 24, s = Math.floor(frames / 24) % 60, m = Math.floor(frames / 1440) % 60, h = Math.floor(frames / 86400);
-    tc.textContent = `${pad(h)}:${pad(m)}:${pad(s)}:${pad(f)}`;
-    const line = window.innerHeight * 0.85;
-    let current = scenes[0];
-    for (const s2 of scenes) if (s2.getBoundingClientRect().top <= line) current = s2;
-    if (current) {
-      sc.textContent = current.dataset.sceneLabel;
-      const r = current.getBoundingClientRect();
-      const night = current.hasAttribute('data-night') && r.bottom > window.innerHeight - 40;
-      el.classList.toggle('on-night', night);
-    }
-  };
-  window.addEventListener('scroll', () => { if (!queued) { queued = true; requestAnimationFrame(update); } }, { passive: true });
-  update();
-}

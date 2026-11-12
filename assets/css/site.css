@@ -123,22 +123,6 @@ button { font: inherit; color: inherit; }
 .site-footer .links { display: flex; flex-wrap: wrap; gap: 6px 22px; }
 .site-footer .made { display: inline-flex; align-items: center; gap: 10px; }
 
-/* ---- scroll timecode (home only) -------------------------------------------- */
-.timecode {
-  position: fixed; left: 16px; bottom: 14px; z-index: 20;
-  font: 500 11px/1 var(--mono); letter-spacing: 0.12em;
-  color: var(--muted);
-  background: color-mix(in srgb, var(--paper) 85%, transparent);
-  padding: 7px 9px; border-radius: 3px;
-  pointer-events: none;
-  display: flex; gap: 8px; align-items: center;
-  transition: color .4s, background .4s;
-}
-.timecode .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); animation: rec 1.6s steps(2, jump-none) infinite; }
-.timecode.on-night { color: var(--night-muted); background: color-mix(in srgb, var(--night) 80%, transparent); }
-@keyframes rec { 50% { opacity: .15; } }
-@media (max-width: 640px) { .timecode { display: none; } }
-@media (prefers-reduced-motion: reduce) { .timecode .dot { animation: none; } }
 
 /* ---- reveal-on-scroll (only when JS is running) ------------------------------- */
 .js .reveal { opacity: 0; transform: translateY(14px); transition: opacity .8s ease, transform .8s ease; }
