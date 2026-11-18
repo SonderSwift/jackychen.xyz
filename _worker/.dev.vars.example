@@ -1,0 +1,5 @@
+# Copy to .dev.vars for `npx wrangler dev`. Never commit .dev.vars.
+# Point SITE_ORIGIN at wherever you serve the site locally (python3 -m http.server 8000).
+SITE_ORIGIN=http://127.0.0.1:8000
+ALLOWED_ORIGINS=http://localhost:8000,http://127.0.0.1:8000,http://localhost:8001,http://127.0.0.1:8001
+HOST_KEY=local-host-key-change-me-0123456789

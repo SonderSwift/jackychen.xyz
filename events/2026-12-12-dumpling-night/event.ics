@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//jackychen.xyz//events//EN
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+BEGIN:VEVENT
+UID:2026-12-12-dumpling-night@jackychen.xyz
+DTSTAMP:20261213T020000Z
+DTSTART:20261213T020000Z
+DTEND:20261213T060000Z
+SUMMARY:Dumpling Folding Night
+LOCATION:My place · address on Partiful
+DESCRIPTION:I’ll make the filling and the wrappers. You bring a side\, 
+ a sweet\, or something to sip\, and we fold until we can’t.\n\nhttps:/
+ /jackychen.xyz/events/2026-12-12-dumpling-night/
+URL:https://jackychen.xyz/events/2026-12-12-dumpling-night/
+END:VEVENT
+END:VCALENDAR

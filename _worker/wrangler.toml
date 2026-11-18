@@ -1,0 +1,25 @@
+name = "jackychen-potluck"
+main = "src/index.js"
+compatibility_date = "2026-10-01"
+workers_dev = true
+
+[vars]
+# Where the static site lives. The Worker reads ${SITE_ORIGIN}/events/events.json
+# to learn which events exist and when their potlucks close.
+SITE_ORIGIN = "https://jackychen.xyz"
+# Browsers on these origins may call the API.
+ALLOWED_ORIGINS = "https://jackychen.xyz,https://www.jackychen.xyz,http://localhost:8000,http://127.0.0.1:8000"
+# HOST_KEY is a secret: `npx wrangler secret put HOST_KEY` (and in .dev.vars for local dev).
+
+[[d1_databases]]
+binding = "DB"
+database_name = "potluck"
+# Filled in by `npx wrangler d1 create potluck` before the first deploy.
+database_id = "00000000-0000-0000-0000-000000000000"
+migrations_dir = "migrations"
+
+# Per-IP write limit. Counted in Cloudflare's memory; nothing is stored.
+[[ratelimits]]
+name = "WRITE_LIMIT"
+namespace_id = "1001"
+simple = { limit = 10, period = 60 }
