@@ -14,8 +14,7 @@ ALLOWED_ORIGINS = "https://jackychen.xyz,https://www.jackychen.xyz,http://localh
 [[d1_databases]]
 binding = "DB"
 database_name = "potluck"
-# Filled in by `npx wrangler d1 create potluck` before the first deploy.
-database_id = "00000000-0000-0000-0000-000000000000"
+database_id = "67c4255e-d8a7-4bb9-ae35-49980e35e7a2"
 migrations_dir = "migrations"
 
 # Per-IP write limit. Counted in Cloudflare's memory; nothing is stored.
