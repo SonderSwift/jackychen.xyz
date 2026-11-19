@@ -6,6 +6,8 @@ end: 2026-12-12 22:00
 timezone: America/Los_Angeles
 where: My place · address on Partiful
 emoji: 🥟
+# Sample: hidden from /events/ until you make it real. Delete this line to list it.
+draft: true
 blurb: I’ll make the filling and the wrappers. You bring a side, a sweet, or something to sip, and we fold until we can’t.
 # cover: bike-party
 # cover_alt: Friends with bikes under the string lights
