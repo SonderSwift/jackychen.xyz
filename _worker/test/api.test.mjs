@@ -17,14 +17,15 @@ const WORKER_PORT = 8790 + Math.floor(Math.random() * 100);
 const hour = 3600e3;
 const EVENTS = {
   events: [
-    { slug: 'open-party', potluck: 'open', closesAt: new Date(Date.now() + 24 * hour).toISOString() },
+    { slug: 'open-party', title: 'Not What The Password Says', potluck: 'open', password: true, passwordVersion: 1, closesAt: new Date(Date.now() + 24 * hour).toISOString() },
+    { slug: 'open-public', title: 'Public Picnic', potluck: 'open', password: false, closesAt: new Date(Date.now() + 24 * hour).toISOString() },
     { slug: 'over-party', potluck: 'open', closesAt: new Date(Date.now() - hour).toISOString() },
     { slug: 'closed-party', potluck: 'closed', closesAt: new Date(Date.now() + 24 * hour).toISOString() },
     { slug: 'no-potluck', potluck: 'off', closesAt: new Date(Date.now() + 24 * hour).toISOString() },
   ],
 };
 
-let site, worker, persist, BASE;
+let site, worker, persist, BASE, PASSWORD, GUEST_KEY;
 let ipCounter = 0;
 const freshIp = () => `10.1.${Math.floor(++ipCounter / 250)}.${ipCounter % 250}`;
 
@@ -44,10 +45,12 @@ before(async () => {
   ], { cwd: WORKER_DIR, stdio: 'ignore', detached: true });
   BASE = `http://127.0.0.1:${WORKER_PORT}`;
   for (let i = 0; i < 60; i++) {
-    try { if ((await fetch(`${BASE}/api/health`)).ok) return; } catch { /* not up yet */ }
+    try { if ((await fetch(`${BASE}/api/health`)).ok) break; } catch { /* not up yet */ }
     await new Promise((r) => setTimeout(r, 500));
+    if (i === 59) throw new Error('wrangler dev did not start');
   }
-  throw new Error('wrangler dev did not start');
+  PASSWORD = (await api('GET', '/api/events/open-party', { host: HOST_KEY })).data.event.password;
+  GUEST_KEY = (await api('POST', '/api/events/open-party/unlock', { body: { password: PASSWORD } })).data.guestKey;
 });
 
 after(() => {
@@ -56,16 +59,18 @@ after(() => {
   if (persist) rmSync(persist, { recursive: true, force: true });
 });
 
-async function api(method, path, { body, token, host, ip = freshIp(), headers = {}, raw } = {}) {
+async function api(method, path, { body, token, host, guest, ip = freshIp(), headers = {}, raw } = {}) {
   const h = { 'cf-connecting-ip': ip, ...headers };
+  if (guest) h['x-guest-key'] = guest;
   if (body !== undefined || raw !== undefined) h['content-type'] ??= 'application/json';
   if (token) h.authorization = `Bearer ${token}`;
   if (host) h['x-host-key'] = host;
   const res = await fetch(BASE + path, { method, headers: h, body: raw ?? (body !== undefined ? JSON.stringify(body) : undefined) });
   return { status: res.status, headers: res.headers, data: await res.json().catch(() => null) };
 }
-const add = (slug, body, opts) => api('POST', `/api/events/${slug}/signups`, { body, ...opts });
-const list = async (slug) => (await api('GET', `/api/events/${slug}`)).data.signups;
+// Guests of the locked fixture send the guest key unless a test says otherwise (guest: null).
+const add = (slug, body, opts = {}) => api('POST', `/api/events/${slug}/signups`, { body, ...(slug === 'open-party' && !('guest' in opts) ? { guest: GUEST_KEY } : {}), ...opts });
+const list = async (slug, opts) => (await api('GET', `/api/events/${slug}`, opts)).data.signups;
 
 test('anyone can add to an open potluck and everyone sees it, without the token', async () => {
   const r = await add('open-party', { name: '  Mei  ', dish: 'Mango sago', category: 'dessert' });
@@ -156,6 +161,7 @@ test('CORS: allowed origins only', async () => {
   const pre = await fetch(`${BASE}/api/signups/x`, { method: 'OPTIONS', headers: { origin: ALLOWED, 'access-control-request-method': 'PATCH' } });
   assert.equal(pre.status, 204);
   assert.match(pre.headers.get('access-control-allow-methods'), /PATCH/);
+  assert.match(pre.headers.get('access-control-allow-headers'), /X-Guest-Key/);
 });
 
 test('failed auth attempts are throttled like writes', async () => {
@@ -170,19 +176,92 @@ test('failed auth attempts are throttled like writes', async () => {
 
 test('IPv6 visitors share a limit across their /64', async () => {
   const codes = [];
-  for (let i = 0; i < 11; i++) codes.push((await add('open-party', { name: `V6-${i}`, dish: 'x' }, { ip: `2001:db8:aa:bb::${(i + 1).toString(16)}` })).status);
+  for (let i = 0; i < 11; i++) codes.push((await add('open-public', { name: `V6-${i}`, dish: 'x' }, { ip: `2001:db8:aa:bb::${(i + 1).toString(16)}` })).status);
   assert.equal(codes[10], 429);
 });
 
 test('rate limit: one IP gets 10 writes a minute', async () => {
   const ip = '10.9.9.9';
   const codes = [];
-  for (let i = 0; i < 12; i++) codes.push((await add('open-party', { name: `R${i}`, dish: `d${i}` }, { ip })).status);
+  for (let i = 0; i < 12; i++) codes.push((await add('open-public', { name: `R${i}`, dish: `d${i}` }, { ip })).status);
   assert.deepEqual(codes.slice(0, 10), Array(10).fill(201));
   assert.deepEqual(codes.slice(10), [429, 429]);
-  assert.equal((await add('open-party', { name: 'Other', dish: 'x' })).status, 201, 'other IPs unaffected');
+  assert.equal((await add('open-public', { name: 'Other', dish: 'x' })).status, 201, 'other IPs unaffected');
 });
 
+
+test('locked event: strangers see initials, guests and the host see names', async () => {
+  const r = await add('open-party', { name: 'Mei Lin', dish: 'Egg tarts', category: 'dessert' });
+  const id = r.data.signup.id;
+  const stranger = await api('GET', '/api/events/open-party');
+  assert.equal(stranger.data.event.locked, true);
+  assert.equal(stranger.data.event.guest, false);
+  assert.equal(stranger.data.event.password, undefined);
+  assert.equal(stranger.data.signups.find((s) => s.id === id).name, 'M.L.');
+  assert.equal(stranger.data.signups.find((s) => s.id === id).dish, 'Egg tarts');
+  assert.ok(!JSON.stringify(stranger.data).includes('Mei Lin'));
+  assert.equal((await list('open-party', { guest: 'x'.repeat(43) })).find((s) => s.id === id).name, 'M.L.', 'made-up key');
+  const guest = await api('GET', '/api/events/open-party', { guest: GUEST_KEY });
+  assert.equal(guest.data.event.guest, true);
+  assert.equal(guest.data.signups.find((s) => s.id === id).name, 'Mei Lin');
+  assert.equal(stranger.data.event.host, false);
+  const host = await api('GET', '/api/events/open-party', { host: HOST_KEY });
+  assert.equal(host.data.event.host, true);
+  assert.equal(host.data.signups.find((s) => s.id === id).name, 'Mei Lin');
+  assert.equal((await api('GET', '/api/events/open-party', { host: 'wrong-key-wrong-key-wrong-key' })).data.event.host, false);
+});
+
+test('password: the host sees it, typing it gives the guest key, case and dashes do not matter', async () => {
+  // The word comes from the slug, not the title, so renaming an event keeps its password.
+  assert.match(PASSWORD, /^OPEN-[23456789ABCDEFGHJKMNPQRSTVWXYZ]{5}-[23456789ABCDEFGHJKMNPQRSTVWXYZ]{5}$/);
+  assert.match(GUEST_KEY, /^[A-Za-z0-9_-]{43}$/);
+  const typed = PASSWORD.toLowerCase().replace('-', ' ');
+  const r = await api('POST', '/api/events/open-party/unlock', { body: { password: typed } });
+  assert.equal(r.status, 200);
+  assert.equal(r.data.guestKey, GUEST_KEY);
+  const codeOnly = PASSWORD.slice('OPEN-'.length);
+  assert.equal((await api('POST', '/api/events/open-party/unlock', { body: { password: codeOnly } })).data.guestKey, GUEST_KEY, 'the word is optional');
+  assert.equal((await api('POST', '/api/events/open-party/unlock', { body: { password: PASSWORD.slice(0, -1) } })).status, 403, 'one character short');
+});
+
+test('wrong host keys on reads are throttled too', async () => {
+  const ip = '10.6.6.6';
+  const codes = [];
+  for (let i = 0; i < 11; i++) codes.push((await api('GET', '/api/events/open-party', { host: `guess-${i}-xxxxxxxxxxxxxxxxxxxx`, ip })).status);
+  assert.deepEqual(codes.slice(0, 10), Array(10).fill(200));
+  assert.equal(codes[10], 429);
+  assert.equal((await api('GET', '/api/events/open-party', { ip })).status, 200, 'plain reads are never throttled');
+});
+
+test('password: wrong guesses are refused, then throttled', async () => {
+  const ip = '10.7.7.7';
+  const codes = [];
+  for (let i = 0; i < 11; i++) codes.push((await api('POST', '/api/events/open-party/unlock', { body: { password: `OPEN-ABCDE${i}` }, ip })).status);
+  assert.deepEqual(codes.slice(0, 10), Array(10).fill(403));
+  assert.equal(codes[10], 429);
+  assert.equal((await api('POST', '/api/events/open-party/unlock', { body: { password: PASSWORD }, ip })).status, 429, 'even the right one, once throttled');
+  assert.equal((await api('POST', '/api/events/open-party/unlock', { body: {} })).status, 403);
+});
+
+test('locked event: no guest key, no sign-up (the host can still add)', async () => {
+  assert.equal((await add('open-party', { name: 'Stranger', dish: 'x' }, { guest: null })).status, 403);
+  assert.equal((await add('open-party', { name: 'Stranger', dish: 'x' }, { guest: 'nope' })).status, 403);
+  assert.equal((await add('open-party', { name: 'Jacky', dish: 'Dumplings' }, { guest: null, host: HOST_KEY })).status, 201);
+});
+
+test('an event without a password stays open to everyone, with names', async () => {
+  const r = await add('open-public', { name: 'Bo Kim', dish: 'Lemonade' });
+  assert.equal(r.status, 201);
+  const g = await api('GET', '/api/events/open-public');
+  assert.equal(g.data.event.locked, false);
+  assert.equal(g.data.event.guest, true);
+  assert.equal(g.data.signups.find((s) => s.id === r.data.signup.id).name, 'Bo Kim');
+  const u = await api('POST', '/api/events/open-public/unlock', { body: { password: 'anything' } });
+  assert.equal(u.status, 200);
+  assert.equal(u.data.guestKey, null);
+});
+
+// Last: it uses up open-party's per-minute allowance.
 test('per-event burst cap: 30 new entries a minute across everyone', async () => {
   // Earlier tests already added some entries to open-party within this minute; fill up to the cap.
   const codes = [];

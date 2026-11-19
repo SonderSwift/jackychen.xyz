@@ -88,6 +88,7 @@
     data-slug="2026-12-12-dumpling-night"
     data-api="https://jackychen-potluck.jackychen-potluck.workers.dev"
     data-open="true"
+    data-locked="true"
     data-frozen="false"
     data-wishlist='{&quot;side&quot;:3,&quot;dessert&quot;:2,&quot;drinks&quot;:3,&quot;supplies&quot;:1}'>
     <div class="potluck-head">
@@ -97,14 +98,27 @@
     </div>
 
     <ul class="tally" data-tally aria-label="Dishes by category">
-      <li class="sticker" data-cat="main"><span aria-hidden="true">🍲</span> <span class="sticker-label">Main</span> <b data-count>0</b></li>
-      <li class="sticker" data-cat="side"><span aria-hidden="true">🥗</span> <span class="sticker-label">Side</span> <b data-count>0</b><span class="sticker-want">/3</span></li>
-      <li class="sticker" data-cat="dessert"><span aria-hidden="true">🍰</span> <span class="sticker-label">Dessert</span> <b data-count>0</b><span class="sticker-want">/2</span></li>
-      <li class="sticker" data-cat="drinks"><span aria-hidden="true">🧋</span> <span class="sticker-label">Drinks</span> <b data-count>0</b><span class="sticker-want">/3</span></li>
-      <li class="sticker" data-cat="supplies"><span aria-hidden="true">🧺</span> <span class="sticker-label">Supplies</span> <b data-count>0</b><span class="sticker-want">/1</span></li>
+      <li class="sticker" data-cat="main"><svg class="pl-icon" aria-hidden="true" focusable="false"><use href="/assets/img/potluck.svg#pl-main"/></svg> <span class="sticker-label">Main</span> <b data-count>0</b></li>
+      <li class="sticker" data-cat="side"><svg class="pl-icon" aria-hidden="true" focusable="false"><use href="/assets/img/potluck.svg#pl-side"/></svg> <span class="sticker-label">Side</span> <b data-count>0</b><span class="sticker-want">/3</span></li>
+      <li class="sticker" data-cat="dessert"><svg class="pl-icon" aria-hidden="true" focusable="false"><use href="/assets/img/potluck.svg#pl-dessert"/></svg> <span class="sticker-label">Dessert</span> <b data-count>0</b><span class="sticker-want">/2</span></li>
+      <li class="sticker" data-cat="drinks"><svg class="pl-icon" aria-hidden="true" focusable="false"><use href="/assets/img/potluck.svg#pl-drinks"/></svg> <span class="sticker-label">Drinks</span> <b data-count>0</b><span class="sticker-want">/3</span></li>
+      <li class="sticker" data-cat="supplies"><svg class="pl-icon" aria-hidden="true" focusable="false"><use href="/assets/img/potluck.svg#pl-supplies"/></svg> <span class="sticker-label">Supplies</span> <b data-count>0</b><span class="sticker-want">/1</span></li>
     </ul>
 
-    <form class="potluck-form card" data-form novalidate>
+    <form class="potluck-lock card" data-lock hidden novalidate>
+      <p class="form-title"><span aria-hidden="true">🔒</span> Guests only</p>
+      <p class="muted">Coming? The password is in the Partiful event details. Pop it in to see who’s bringing what, and add your dish.</p>
+      <div class="field">
+        <label for="pl-pass">Password</label>
+        <div class="lock-row">
+          <input id="pl-pass" name="password" autocomplete="off" autocapitalize="characters" spellcheck="false" required placeholder="From the Partiful invite">
+          <button class="btn btn--solid" type="submit" data-unlock>Let me in</button>
+        </div>
+      </div>
+      
+    </form>
+
+    <form class="potluck-form card" data-form novalidate hidden>
       <p class="form-title" data-form-title>Put yourself down</p>
       <div class="field">
         <label for="pl-name">Your name</label>
@@ -118,11 +132,11 @@
       <fieldset class="field cats">
         <legend>What kind of thing? <span class="muted">(optional)</span></legend>
         <div class="cat-chips">
-          <label class="chip" data-cat="main"><input type="radio" name="category" value="main"><span><span aria-hidden="true">🍲</span> Main</span></label>
-          <label class="chip" data-cat="side"><input type="radio" name="category" value="side"><span><span aria-hidden="true">🥗</span> Side</span></label>
-          <label class="chip" data-cat="dessert"><input type="radio" name="category" value="dessert"><span><span aria-hidden="true">🍰</span> Dessert</span></label>
-          <label class="chip" data-cat="drinks"><input type="radio" name="category" value="drinks"><span><span aria-hidden="true">🧋</span> Drinks</span></label>
-          <label class="chip" data-cat="supplies"><input type="radio" name="category" value="supplies"><span><span aria-hidden="true">🧺</span> Supplies</span></label>
+          <label class="chip" data-cat="main"><input type="radio" name="category" value="main"><span><svg class="pl-icon" aria-hidden="true" focusable="false"><use href="/assets/img/potluck.svg#pl-main"/></svg> Main</span></label>
+          <label class="chip" data-cat="side"><input type="radio" name="category" value="side"><span><svg class="pl-icon" aria-hidden="true" focusable="false"><use href="/assets/img/potluck.svg#pl-side"/></svg> Side</span></label>
+          <label class="chip" data-cat="dessert"><input type="radio" name="category" value="dessert"><span><svg class="pl-icon" aria-hidden="true" focusable="false"><use href="/assets/img/potluck.svg#pl-dessert"/></svg> Dessert</span></label>
+          <label class="chip" data-cat="drinks"><input type="radio" name="category" value="drinks"><span><svg class="pl-icon" aria-hidden="true" focusable="false"><use href="/assets/img/potluck.svg#pl-drinks"/></svg> Drinks</span></label>
+          <label class="chip" data-cat="supplies"><input type="radio" name="category" value="supplies"><span><svg class="pl-icon" aria-hidden="true" focusable="false"><use href="/assets/img/potluck.svg#pl-supplies"/></svg> Supplies</span></label>
           <label class="chip chip--none"><input type="radio" name="category" value="" checked><span>Not sure</span></label>
         </div>
       </fieldset>
@@ -133,7 +147,7 @@
         <button class="btn btn--solid btn--big" type="submit" data-submit>Put me down 🙌</button>
         <button class="btn" type="button" data-cancel hidden>Cancel</button>
       </div>
-      <p class="fineprint-sm muted">Just a name and a dish. No account, no email. You can change or remove yours later from this phone.</p>
+      <p class="fineprint-sm muted">Just a name and a dish. No account, no email. You can change or remove yours later from this phone. People who aren’t on the guest list only see your initials.</p>
     </form>
 
     <p class="potluck-status" role="status" aria-live="polite" data-status></p>
@@ -143,6 +157,14 @@
 
     <div class="host-panel" data-host-panel hidden>
       <p><b>Host mode.</b> You can remove any entry.</p>
+      <div class="host-pass" data-host-pass hidden>
+        <p>Guest password: <code data-host-pass-value></code></p>
+        <p class="fineprint-sm muted">Paste this into the Partiful event details (with Guest Approval on, only approved guests see it).</p>
+        <div class="host-pass-actions">
+          <button class="btn" type="button" data-copy="partiful">Copy text for Partiful</button>
+          <button class="btn" type="button" data-copy="password">Copy password</button>
+        </div>
+      </div>
       <form data-host-form>
         <label for="pl-host">Host key</label>
         <input id="pl-host" type="password" autocomplete="current-password">

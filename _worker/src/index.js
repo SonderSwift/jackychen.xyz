@@ -1,23 +1,36 @@
 // Potluck API for jackychen.xyz/events.
 //
-//   GET    /api/events/:slug            → { event: { slug, open, closesAt }, signups: [...] }
+//   GET    /api/events/:slug            → { event: { slug, open, closesAt, locked, guest, host, password? }, signups: [...] }
+//   POST   /api/events/:slug/unlock     { password }  → { guestKey }
 //   POST   /api/events/:slug/signups    { name, dish, category?, hp_note? }  → { signup, token }
 //   PATCH  /api/signups/:id             { name?, dish?, category? }  (Authorization: Bearer <token> or X-Host-Key)
 //   DELETE /api/signups/:id             (Authorization: Bearer <token> or X-Host-Key)
 //
 // Who may call what:
-//   - Anyone can read an event's list (it's shown publicly on the event page).
-//   - Anyone can add an entry while the event's potluck is open (rate limited, honeypot, caps).
+//   - Anyone can read an event's list. On a locked event (password on), callers without the
+//     guest key get initials instead of names.
+//   - Anyone can try the event's password (throttled like a write); the right one returns the
+//     guest key (X-Guest-Key), a long HMAC nobody can guess, so reads with it need no throttle.
+//   - Guests (anyone, if the event has no password) can add an entry while the potluck is open
+//     (rate limited, honeypot, caps).
 //   - Only the holder of an entry's edit token can change or remove it, and only while open.
-//   - The host (X-Host-Key = HOST_KEY secret) can change or remove any entry at any time.
+//   - The host (X-Host-Key = HOST_KEY secret) can change or remove any entry at any time, and
+//     sees the event's password.
+//
+// Passwords and guest keys are derived from HOST_KEY, the slug and the event's passwordVersion,
+// so nothing is stored and bumping the version in the event file changes both.
 //
 // Which events exist and when they close comes from the static site's /events/events.json,
 // so the site's event files stay the single source of truth.
+
+import { initials } from './initials.js';
 
 const CATEGORIES = ['main', 'side', 'dessert', 'drinks', 'supplies'];
 const LIMITS = { name: 40, dish: 80, perEvent: 120, perEventPerMinute: 30, bodyBytes: 2048 };
 const HONEYPOT = 'hp_note';
 const MIN_HOST_KEY = 24;
+const PASS_ALPHABET = '23456789ABCDEFGHJKMNPQRSTVWXYZ'; // no 0/O, 1/I/L, U
+const PASS_CHARS = 10;
 
 const REGISTRY_TTL_MS = 60_000;
 let registry = { at: 0, events: null, origin: '' };
@@ -46,7 +59,10 @@ async function route(request, env) {
   if (parts[0] !== 'api') throw new HttpError(404, 'Not found.');
   if (parts.length === 2 && parts[1] === 'health' && m === 'GET') return json({ ok: true });
 
-  if (parts[1] === 'events' && parts.length === 3 && m === 'GET') return listSignups(env, parts[2]);
+  if (parts[1] === 'events' && parts.length === 3 && m === 'GET') return listSignups(request, env, parts[2]);
+  if (parts[1] === 'events' && parts.length === 4 && parts[3] === 'unlock' && m === 'POST') {
+    return unlock(request, env, parts[2]);
+  }
   if (parts[1] === 'events' && parts.length === 4 && parts[3] === 'signups' && m === 'POST') {
     return createSignup(request, env, parts[2]);
   }
@@ -58,18 +74,40 @@ async function route(request, env) {
 
 // ---------------------------------------------------------------------------------------------
 
-async function listSignups(env, slug) {
+async function listSignups(request, env, slug) {
   const event = await findEvent(env, slug);
+  const who = await access(request, env, event);
   const { results } = await env.DB
     .prepare('SELECT id, name, dish, category, created_at, updated_at FROM signups WHERE event = ? ORDER BY created_at, id')
     .bind(event.slug).all();
-  return json({ event: publicEvent(event), signups: results.map(publicSignup) });
+  const out = { ...publicEvent(event), guest: who.guest, host: who.host };
+  if (who.host && isLocked(event)) out.password = await eventPassword(env, event);
+  return json({ event: out, signups: results.map((r) => publicSignup(r, !who.guest)) });
+}
+
+async function unlock(request, env, slug) {
+  const event = await findEvent(env, slug);
+  if (!isLocked(event)) return json({ guestKey: null });
+  // Throttle before checking, so each guess costs a write.
+  await rateLimit(request, env);
+  const body = await readBody(request);
+  // The word in front is only there to remember it by, so the code alone works too.
+  const given = normalizePassword(body.password);
+  const code = normalizePassword(await passwordCode(env, event));
+  const tried = given.startsWith(passwordWord(event)) ? given.slice(passwordWord(event).length) : given;
+  if (!given || !(await safeEqual(await sha256(tried), await sha256(code)))) {
+    throw new HttpError(403, 'That’s not it. The password is in the Partiful event details.');
+  }
+  return json({ guestKey: await guestKey(env, event) });
 }
 
 async function createSignup(request, env, slug) {
   const event = await findEvent(env, slug);
   if (!isOpen(event)) throw new HttpError(409, 'The potluck sign-up for this one is closed.');
   await rateLimit(request, env);
+  if (!(await access(request, env, event)).guest) {
+    throw new HttpError(403, 'This list is for guests. Enter the password from the Partiful invite first.');
+  }
 
   const body = await readBody(request);
   // Honeypot: people never see this field. Pretend it worked so bots don't learn anything.
@@ -213,11 +251,68 @@ function isOpen(event) {
 }
 
 function publicEvent(e) {
-  return { slug: e.slug, open: isOpen(e), closesAt: e.closesAt || null };
+  return { slug: e.slug, open: isOpen(e), closesAt: e.closesAt || null, locked: isLocked(e) };
 }
 
-function publicSignup(r) {
-  return { id: r.id, name: r.name, dish: r.dish, category: r.category, createdAt: r.created_at, updatedAt: r.updated_at };
+function publicSignup(r, masked) {
+  const name = masked ? initials(r.name) : r.name;
+  return { id: r.id, name, dish: r.dish, category: r.category, createdAt: r.created_at, updatedAt: r.updated_at };
+}
+
+// ---- guest password ---------------------------------------------------------------------------
+
+// Events from an older events.json have no `password` field: treat them as open to everyone.
+function isLocked(event) {
+  return event.password === true;
+}
+
+async function access(request, env, event) {
+  const host = await isHost(request, env);
+  // A wrong host key costs a write, like a wrong password (the key itself is far too long to guess).
+  if (!host && request.headers.has('x-host-key')) await rateLimit(request, env);
+  if (host || !isLocked(event)) return { host, guest: true };
+  const given = request.headers.get('x-guest-key');
+  const guest = Boolean(given) && (await safeEqual(await sha256(given), await sha256(await guestKey(env, event))));
+  return { host, guest };
+}
+
+async function derive(env, purpose, event) {
+  // Without a strong HOST_KEY the derived secrets would be guessable, so refuse instead.
+  if (!env.HOST_KEY || env.HOST_KEY.length < MIN_HOST_KEY) throw new HttpError(503, 'The potluck isn’t set up yet.');
+  const version = Number.isInteger(event.passwordVersion) && event.passwordVersion > 0 ? event.passwordVersion : 1;
+  const key = await crypto.subtle.importKey('raw', new TextEncoder().encode(env.HOST_KEY), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']);
+  const sig = await crypto.subtle.sign('HMAC', key, new TextEncoder().encode(`${purpose}:${event.slug}:${version}`));
+  return new Uint8Array(sig);
+}
+
+// 2026-12-12-dumpling-night → "DUMPLING-7Q4KX-M9P2B": a word to remember it by, plus 10 characters
+// (30^10 ≈ 6×10^14 possibilities, so even many addresses at 10 tries a minute get nowhere).
+// Guests mostly arrive through the #p= link, so the length costs little.
+async function eventPassword(env, event) {
+  const code = await passwordCode(env, event);
+  return `${passwordWord(event)}-${code.slice(0, 5)}-${code.slice(5)}`;
+}
+
+async function passwordCode(env, event) {
+  const bytes = await derive(env, 'password', event);
+  let code = '';
+  for (let i = 0; i < PASS_CHARS; i++) code += PASS_ALPHABET[bytes[i] % PASS_ALPHABET.length];
+  return code;
+}
+
+// From the slug (the event's URL), not the title, so renaming an event keeps its password.
+function passwordWord(event) {
+  const words = event.slug.toUpperCase().match(/[A-Z]{3,}/g) || [];
+  return (words[0] || 'POTLUCK').slice(0, 10);
+}
+
+function normalizePassword(s) {
+  return typeof s === 'string' ? s.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 64) : '';
+}
+
+async function guestKey(env, event) {
+  const bytes = await derive(env, 'guest', event);
+  return btoa(String.fromCharCode(...bytes)).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
 }
 
 async function rateLimit(request, env) {
@@ -248,7 +343,7 @@ function corsHeaders(request, env) {
   const allowed = (env.ALLOWED_ORIGINS || '').split(',').map((s) => s.trim()).filter(Boolean);
   const h = {
     'Access-Control-Allow-Methods': 'GET, POST, PATCH, DELETE, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Host-Key',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Host-Key, X-Guest-Key',
     'Access-Control-Max-Age': '86400',
     Vary: 'Origin',
   };

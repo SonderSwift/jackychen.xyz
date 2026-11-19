@@ -15,6 +15,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import { execFileSync } from 'node:child_process';
 import { tmpdir } from 'node:os';
 import { CATEGORIES, escapeHtml as h, renderMarkdown, buildIcs, readEvent, isPast } from './events-lib.mjs';
+import { initials } from '../_worker/src/initials.js';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const SRC = join(ROOT, '_events');
@@ -93,6 +94,8 @@ function build({ og }) {
       end: e.end.toISOString(),
       potluck: e.frozen && e.potluck !== 'off' ? 'closed' : e.potluck,
       closesAt: e.closesAt.toISOString(),
+      password: e.password,
+      passwordVersion: e.passwordVersion,
     })),
   }, null, 2) + '\n');
 
@@ -116,7 +119,8 @@ async function freeze(slug) {
   const res = await fetch(`${api}/api/events/${slug}`);
   if (!res.ok) throw new Error(`${api} answered ${res.status}`);
   const { signups } = await res.json();
-  const keep = signups.map(({ id, name, dish, category }) => ({ id, name, dish, category }));
+  // The archive only ever keeps initials, whatever the event's password setting.
+  const keep = signups.map(({ id, name, dish, category }) => ({ id, name: initials(name), dish, category }));
   writeFileSync(join(SRC, `${slug}.potluck.json`), JSON.stringify({ frozenAt: new Date().toISOString(), signups: keep }, null, 2) + '\n');
   console.log(`saved ${keep.length} potluck entries → _events/${slug}.potluck.json`);
   build({ og: 'stale' });
@@ -359,7 +363,8 @@ function potluckSection(e, { past, potluckOpen }) {
   const cats = Object.entries(CATEGORIES);
   const frozenItems = (e.frozen || []).map((s) => {
     const c = CATEGORIES[s.category];
-    return `<li class="dish" data-cat="${h(s.category || 'other')}"><span class="dish-emoji" aria-hidden="true">${c ? c.emoji : '🍽️'}</span><span class="dish-body"><span class="dish-name">${h(s.dish)}</span><span class="dish-who">${h(s.name)}</span></span></li>`;
+    const cat = c ? s.category : 'other';
+    return `<li class="dish" data-cat="${cat}"><span class="dish-icon">${icon(cat)}</span><span class="dish-body"><span class="dish-name">${h(s.dish)}</span><span class="dish-who">${h(initials(s.name))}</span></span></li>`;
   }).join('');
 
   return `
@@ -368,6 +373,7 @@ function potluckSection(e, { past, potluckOpen }) {
     data-slug="${h(e.slug)}"
     data-api="${h(config.api)}"
     data-open="${potluckOpen}"
+    data-locked="${e.password}"
     data-frozen="${e.frozen ? 'true' : 'false'}"
     data-wishlist='${h(JSON.stringify(e.wishlist))}'>
     <div class="potluck-head">
@@ -377,10 +383,12 @@ function potluckSection(e, { past, potluckOpen }) {
     </div>
 
     <ul class="tally" data-tally aria-label="Dishes by category">
-      ${cats.map(([k, c]) => `<li class="sticker" data-cat="${k}"><span aria-hidden="true">${c.emoji}</span> <span class="sticker-label">${c.label}</span> <b data-count>0</b>${e.wishlist[k] ? `<span class="sticker-want">/${e.wishlist[k]}</span>` : ''}</li>`).join('\n      ')}
+      ${cats.map(([k, c]) => `<li class="sticker" data-cat="${k}">${icon(k)} <span class="sticker-label">${c.label}</span> <b data-count>0</b>${e.wishlist[k] ? `<span class="sticker-want">/${e.wishlist[k]}</span>` : ''}</li>`).join('\n      ')}
     </ul>
 
-    ${potluckOpen ? `<form class="potluck-form card" data-form novalidate>
+    ${potluckOpen && e.password ? lockCard(e) : ''}
+
+    ${potluckOpen ? `<form class="potluck-form card" data-form novalidate${e.password ? ' hidden' : ''}>
       <p class="form-title" data-form-title>Put yourself down</p>
       <div class="field">
         <label for="pl-name">Your name</label>
@@ -394,7 +402,7 @@ function potluckSection(e, { past, potluckOpen }) {
       <fieldset class="field cats">
         <legend>What kind of thing? <span class="muted">(optional)</span></legend>
         <div class="cat-chips">
-          ${cats.map(([k, c]) => `<label class="chip" data-cat="${k}"><input type="radio" name="category" value="${k}"><span><span aria-hidden="true">${c.emoji}</span> ${c.label}</span></label>`).join('\n          ')}
+          ${cats.map(([k, c]) => `<label class="chip" data-cat="${k}"><input type="radio" name="category" value="${k}"><span>${icon(k)} ${c.label}</span></label>`).join('\n          ')}
           <label class="chip chip--none"><input type="radio" name="category" value="" checked><span>Not sure</span></label>
         </div>
       </fieldset>
@@ -405,7 +413,7 @@ function potluckSection(e, { past, potluckOpen }) {
         <button class="btn btn--solid btn--big" type="submit" data-submit>Put me down 🙌</button>
         <button class="btn" type="button" data-cancel hidden>Cancel</button>
       </div>
-      <p class="fineprint-sm muted">Just a name and a dish. No account, no email. You can change or remove yours later from this phone.</p>
+      <p class="fineprint-sm muted">Just a name and a dish. No account, no email. You can change or remove yours later from this phone.${e.password ? ' People who aren’t on the guest list only see your initials.' : ''}</p>
     </form>` : `<p class="potluck-closed" data-closed>${past ? '' : 'Sign-ups are closed. Here’s the final spread.'}</p>`}
 
     <p class="potluck-status" role="status" aria-live="polite" data-status></p>
@@ -415,6 +423,14 @@ function potluckSection(e, { past, potluckOpen }) {
 
     <div class="host-panel" data-host-panel hidden>
       <p><b>Host mode.</b> You can remove any entry.</p>
+      ${e.password ? `<div class="host-pass" data-host-pass hidden>
+        <p>Guest password: <code data-host-pass-value></code></p>
+        <p class="fineprint-sm muted">Paste this into the Partiful event details (with Guest Approval on, only approved guests see it).</p>
+        <div class="host-pass-actions">
+          <button class="btn" type="button" data-copy="partiful">Copy text for Partiful</button>
+          <button class="btn" type="button" data-copy="password">Copy password</button>
+        </div>
+      </div>` : ''}
       <form data-host-form>
         <label for="pl-host">Host key</label>
         <input id="pl-host" type="password" autocomplete="current-password">
@@ -423,6 +439,25 @@ function potluckSection(e, { past, potluckOpen }) {
       </form>
     </div>
   </section>`;
+}
+
+function lockCard(e) {
+  return `<form class="potluck-lock card" data-lock hidden novalidate>
+      <p class="form-title"><span aria-hidden="true">🔒</span> Guests only</p>
+      <p class="muted">Coming? The password is in the Partiful event details. Pop it in to see who’s bringing what, and add your dish.</p>
+      <div class="field">
+        <label for="pl-pass">Password</label>
+        <div class="lock-row">
+          <input id="pl-pass" name="password" autocomplete="off" autocapitalize="characters" spellcheck="false" required placeholder="From the Partiful invite">
+          <button class="btn btn--solid" type="submit" data-unlock>Let me in</button>
+        </div>
+      </div>
+      ${e.partiful ? `<p class="fineprint-sm muted">Not on the list yet? <a href="${h(e.partiful)}" rel="noopener">Ask on Partiful →</a></p>` : ''}
+    </form>`;
+}
+
+function icon(cat) {
+  return `<svg class="pl-icon" aria-hidden="true" focusable="false"><use href="/assets/img/potluck.svg#pl-${cat}"/></svg>`;
 }
 
 // ---- share image ---------------------------------------------------------------------------------

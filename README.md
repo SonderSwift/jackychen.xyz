@@ -67,6 +67,9 @@ On `localhost`, event pages talk to `http://localhost:8787` automatically.
 
 **How sign-ups work:** the Worker stores only name, dish and category in D1. Adding an entry returns a random
 edit token that stays in the guest's browser; only that token (or the host key) can change or remove it.
+Events with `password: on` (the default) show initials to everyone without the guest password; the password
+(an HMAC of the host key, slug and `password_version`) is traded once for a long guest key that the browser keeps.
+Password tries share the write limit below.
 Spam protection: hidden honeypot field, 10 writes/minute per IP or IPv6 /64 (Cloudflare rate limiter, nothing
 stored; failed edit/host-key attempts count too), 120 entries per event and 30 new entries/minute per event.
 If junk ever gets through: `npx wrangler d1 execute potluck --remote --command "DELETE FROM signups WHERE event = '<slug>' AND created_at > <ms timestamp>"`. The Worker reads `events/events.json` from the live
@@ -84,3 +87,8 @@ npm run deploy                              # prints https://jackychen-potluck.<
 ```
 
 Put that URL in `_events/config.json` as `api`, rebuild, commit, push. Later Worker changes: `npm run deploy`.
+
+When a change touches both the Worker and the event pages, deploy the Worker first, then push the site
+(the Worker accepts the older `events.json`; the newer pages need the newer Worker). Roll back in reverse:
+site first, then Worker (`npx wrangler rollback`). Changing `HOST_KEY` also changes every event's guest
+password, so paste the new ones into Partiful afterwards.

@@ -272,6 +272,10 @@ export function readEvent(text, slug) {
   const closesAt = meta.potluck_closes ? zonedToUtc(meta.potluck_closes, tz) : end;
   if (meta.partiful && !/^https:\/\//.test(meta.partiful)) throw new Error(`${slug}: partiful should be a https:// link`);
   if (meta.cover && !/^[a-z0-9][a-z0-9._-]*$/i.test(meta.cover)) throw new Error(`${slug}: cover should be an image base name like "bike-party"`);
+  const pw = meta.password ?? 'on';
+  if (!['on', 'off', true, false].includes(pw)) throw new Error(`${slug}: password should be on or off`);
+  const pv = meta.password_version ?? '1';
+  if (!/^[1-9]\d{0,5}$/.test(String(pv))) throw new Error(`${slug}: password_version should be a whole number like 2`);
   const { description, recap } = splitRecap(body);
   return {
     slug,
@@ -288,6 +292,8 @@ export function readEvent(text, slug) {
     partiful: meta.partiful || '',
     potluck,
     closesAt,
+    password: pw === 'on' || pw === true,
+    passwordVersion: Number(pv),
     wishlist: parseWishlist(meta.wishlist),
     photos: (Array.isArray(meta.photos) ? meta.photos : []).map(parsePhoto),
     draft: meta.draft === true,

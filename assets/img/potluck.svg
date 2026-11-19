@@ -1,0 +1,87 @@
+<svg xmlns="http://www.w3.org/2000/svg">
+  <!-- Potluck stickers. Body colour comes from CSS `color` (the category colour); outlines and faces are ink. -->
+
+  <symbol id="pl-main" viewBox="0 0 48 48">
+    <path d="M18 12c-2-2.2 2-3.8 0-6.4M24 12c-2-2.2 2-3.8 0-6.4M30 12c-2-2.2 2-3.8 0-6.4" fill="none" stroke="#2b1d12" stroke-width="2" stroke-linecap="round" opacity=".5"/>
+    <path d="M4.5 23.5h5M38.5 23.5h5" stroke="#2b1d12" stroke-width="3.2" stroke-linecap="round"/>
+    <path d="M9 18h30v13.5c0 5-4 9-9 9H18c-5 0-9-4-9-9z" fill="currentColor" stroke="#2b1d12" stroke-width="2.2" stroke-linejoin="round"/>
+    <rect x="6.5" y="14.5" width="35" height="5.5" rx="2.75" fill="#fff8ee" stroke="#2b1d12" stroke-width="2.2"/>
+    <ellipse cx="14.5" cy="31.5" rx="2.6" ry="1.6" fill="#fff" opacity=".45"/>
+    <ellipse cx="33.5" cy="31.5" rx="2.6" ry="1.6" fill="#fff" opacity=".45"/>
+    <circle cx="19" cy="28" r="1.7" fill="#2b1d12"/>
+    <circle cx="29" cy="28" r="1.7" fill="#2b1d12"/>
+    <path d="M21.5 31.5q2.5 2.4 5 0" fill="none" stroke="#2b1d12" stroke-width="1.8" stroke-linecap="round"/>
+  </symbol>
+
+  <symbol id="pl-side" viewBox="0 0 48 48">
+    <path d="M12 22c-1-6 4-10 8-8 1-5 9-6 10 0 4-3 10 1 8 8" fill="#8cc56b" stroke="#2b1d12" stroke-width="2.2" stroke-linejoin="round"/>
+    <path d="M20 14c1 3 1 5 0 8M30 14c-1 3-1 5 0 8" fill="none" stroke="#2b1d12" stroke-width="1.6" stroke-linecap="round" opacity=".5"/>
+    <circle cx="33.5" cy="17.5" r="3.6" fill="#e5533d" stroke="#2b1d12" stroke-width="2"/>
+    <circle cx="14.5" cy="18.5" r="2.6" fill="#f2c14e" stroke="#2b1d12" stroke-width="1.8"/>
+    <path d="M6 22h36c0 10-7.5 18-18 18S6 32 6 22z" fill="currentColor" stroke="#2b1d12" stroke-width="2.2" stroke-linejoin="round"/>
+    <path d="M17 41.5h14" stroke="#2b1d12" stroke-width="2.2" stroke-linecap="round"/>
+    <ellipse cx="13.5" cy="30" rx="2.6" ry="1.6" fill="#fff" opacity=".45"/>
+    <ellipse cx="34.5" cy="30" rx="2.6" ry="1.6" fill="#fff" opacity=".45"/>
+    <circle cx="19" cy="27" r="1.7" fill="#2b1d12"/>
+    <circle cx="29" cy="27" r="1.7" fill="#2b1d12"/>
+    <path d="M21.5 30.5q2.5 2.4 5 0" fill="none" stroke="#2b1d12" stroke-width="1.8" stroke-linecap="round"/>
+  </symbol>
+
+  <symbol id="pl-dessert" viewBox="0 0 48 48">
+    <path d="M7 24 35 13l6 5v20.5H7z" fill="currentColor" stroke="#2b1d12" stroke-width="2.2" stroke-linejoin="round"/>
+    <path d="M7 24 35 13l6 5L13 28z" fill="#fff8ee" stroke="#2b1d12" stroke-width="2.2" stroke-linejoin="round"/>
+    <path d="M7 31.5h34" stroke="#fff8ee" stroke-width="3"/>
+    <path d="M7 24v14.5M13 28v10.5" fill="none" stroke="#2b1d12" stroke-width="2.2"/>
+    <path d="M13 28 41 18" fill="none" stroke="#2b1d12" stroke-width="2.2"/>
+    <path d="M33 13.5c.5-3 2-5 4.5-6" fill="none" stroke="#2b1d12" stroke-width="1.8" stroke-linecap="round"/>
+    <circle cx="32.5" cy="13.5" r="3.6" fill="#e5533d" stroke="#2b1d12" stroke-width="2"/>
+    <ellipse cx="19" cy="35.5" rx="2.4" ry="1.5" fill="#fff" opacity=".45"/>
+    <ellipse cx="36.5" cy="35.5" rx="2.4" ry="1.5" fill="#fff" opacity=".45"/>
+    <circle cx="23.5" cy="34.5" r="1.6" fill="#2b1d12"/>
+    <circle cx="32" cy="34.5" r="1.6" fill="#2b1d12"/>
+    <path d="M26 36.5q1.8 1.8 3.6 0" fill="none" stroke="#2b1d12" stroke-width="1.6" stroke-linecap="round"/>
+  </symbol>
+
+  <symbol id="pl-drinks" viewBox="0 0 48 48">
+    <path d="M27 4.5 23.5 17" stroke="#2b1d12" stroke-width="5.5" stroke-linecap="round"/>
+    <path d="M27 4.5 23.5 17" stroke="#f2c14e" stroke-width="2.6" stroke-linecap="round"/>
+    <path d="M13 17.5h22l-2.8 21.6a3.4 3.4 0 0 1-3.4 2.9H19.2a3.4 3.4 0 0 1-3.4-2.9z" fill="currentColor" stroke="#2b1d12" stroke-width="2.2" stroke-linejoin="round"/>
+    <path d="M11 17.5c0-4.5 6-7 13-7s13 2.5 13 7z" fill="#fff8ee" stroke="#2b1d12" stroke-width="2.2" stroke-linejoin="round"/>
+    <circle cx="20" cy="37" r="1.9" fill="#2b1d12"/>
+    <circle cx="24.5" cy="38.2" r="1.9" fill="#2b1d12"/>
+    <circle cx="29" cy="37" r="1.9" fill="#2b1d12"/>
+    <circle cx="22.2" cy="33.8" r="1.9" fill="#2b1d12"/>
+    <circle cx="26.8" cy="33.8" r="1.9" fill="#2b1d12"/>
+    <ellipse cx="16.8" cy="27" rx="2.2" ry="1.4" fill="#fff" opacity=".45"/>
+    <ellipse cx="31.2" cy="27" rx="2.2" ry="1.4" fill="#fff" opacity=".45"/>
+    <circle cx="20.3" cy="24" r="1.6" fill="#2b1d12"/>
+    <circle cx="27.7" cy="24" r="1.6" fill="#2b1d12"/>
+    <path d="M22.4 27q1.6 1.8 3.2 0" fill="none" stroke="#2b1d12" stroke-width="1.6" stroke-linecap="round"/>
+  </symbol>
+
+  <symbol id="pl-supplies" viewBox="0 0 48 48">
+    <path d="M12 21c0-9 5-14 12-14s12 5 12 14" fill="none" stroke="#2b1d12" stroke-width="5.2" stroke-linecap="round"/>
+    <path d="M12 21c0-9 5-14 12-14s12 5 12 14" fill="none" stroke="#fff8ee" stroke-width="2" stroke-linecap="round"/>
+    <path d="M10 18.5h28l-3 5H13z" fill="#fff8ee" stroke="#2b1d12" stroke-width="2" stroke-linejoin="round"/>
+    <path d="M16 18.5l-1.3 5M22 18.5l-.4 5M28 18.5l.4 5M34 18.5l1.3 5" stroke="#e5533d" stroke-width="2.2"/>
+    <path d="M6.5 22h35l-3.6 16.2a4 4 0 0 1-3.9 3.1H14a4 4 0 0 1-3.9-3.1z" fill="currentColor" stroke="#2b1d12" stroke-width="2.2" stroke-linejoin="round"/>
+    <path d="M9 27.5h30M10.5 34h27" fill="none" stroke="#2b1d12" stroke-width="1.4" opacity=".35"/>
+    <ellipse cx="14" cy="32" rx="2.4" ry="1.5" fill="#fff" opacity=".45"/>
+    <ellipse cx="34" cy="32" rx="2.4" ry="1.5" fill="#fff" opacity=".45"/>
+    <circle cx="19.5" cy="30" r="1.7" fill="#2b1d12"/>
+    <circle cx="28.5" cy="30" r="1.7" fill="#2b1d12"/>
+    <path d="M22 33q2 2.2 4 0" fill="none" stroke="#2b1d12" stroke-width="1.7" stroke-linecap="round"/>
+  </symbol>
+
+  <symbol id="pl-other" viewBox="0 0 48 48">
+    <path d="M6 9v9a3 3 0 0 0 6 0V9M9 9v31" fill="none" stroke="#2b1d12" stroke-width="2.2" stroke-linecap="round"/>
+    <path d="M39 40V9c-3.5 2-5 7-5 13h5" fill="#fff8ee" stroke="#2b1d12" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"/>
+    <circle cx="23.5" cy="25" r="11.5" fill="#fff8ee" stroke="#2b1d12" stroke-width="2.2"/>
+    <circle cx="23.5" cy="25" r="7.5" fill="currentColor" opacity=".55"/>
+    <ellipse cx="17.6" cy="28" rx="1.9" ry="1.2" fill="#fff" opacity=".6"/>
+    <ellipse cx="29.4" cy="28" rx="1.9" ry="1.2" fill="#fff" opacity=".6"/>
+    <circle cx="20.5" cy="24.5" r="1.5" fill="#2b1d12"/>
+    <circle cx="26.5" cy="24.5" r="1.5" fill="#2b1d12"/>
+    <path d="M22 27.5q1.5 1.6 3 0" fill="none" stroke="#2b1d12" stroke-width="1.5" stroke-linecap="round"/>
+  </symbol>
+</svg>

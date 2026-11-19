@@ -6,7 +6,9 @@
       "start": "2026-12-13T02:00:00.000Z",
       "end": "2026-12-13T06:00:00.000Z",
       "potluck": "open",
-      "closesAt": "2026-12-13T06:00:00.000Z"
+      "closesAt": "2026-12-13T06:00:00.000Z",
+      "password": true,
+      "passwordVersion": 1
     }
   ]
 }

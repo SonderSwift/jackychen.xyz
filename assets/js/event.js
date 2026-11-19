@@ -23,8 +23,11 @@ function initPotluck(root) {
   const empty = $('[data-empty]');
   const status = $('[data-status]');
   const hostPanel = $('[data-host-panel]');
+  const lockForm = $('[data-lock]');
+  const locked = root.dataset.locked === 'true';
 
   let items = [];
+  let isGuest = !locked; // can this phone see names and use the form? (updated from every answer)
   let open = root.dataset.open === 'true';
   let editingId = null;
   let loaded = false;
@@ -43,6 +46,8 @@ function initPotluck(root) {
   const saveToken = (id, token) => { const t = tokens(); t[id] = token; write(storeKey, { tokens: t }); };
   const dropToken = (id) => { const t = tokens(); delete t[id]; write(storeKey, { tokens: t }); };
   const hostKey = () => read('potluck:host');
+  const guestStore = `potluck:guest:${slug}`;
+  const guestKey = () => read(guestStore);
 
   // ---- frozen archive: the list is already in the HTML ---------------------------------------
   if (frozen) {
@@ -55,6 +60,7 @@ function initPotluck(root) {
   async function call(method, path, body, auth) {
     const headers = {};
     if (body) headers['Content-Type'] = 'application/json';
+    if (guestKey()) headers['X-Guest-Key'] = guestKey();
     if (auth?.token) headers.Authorization = `Bearer ${auth.token}`;
     if (auth?.host) headers['X-Host-Key'] = auth.host;
     let res;
@@ -72,9 +78,22 @@ function initPotluck(root) {
     if (busy) return;
     const started = writes;
     try {
-      const data = await call('GET', `/api/events/${encodeURIComponent(slug)}`);
+      const data = await call('GET', `/api/events/${encodeURIComponent(slug)}`, null, { host: hostKey() });
       if (started !== writes || busy) return; // a write happened meanwhile; its own refresh will be newer
       if (open && !data.event.open) closeForm();
+      if (data.event.locked && !data.event.guest && guestKey()) {
+        write(guestStore, null); // the password was changed since this phone unlocked
+        say('The guest password changed. Grab the new one from the Partiful invite.', 'error');
+      }
+      // `=== false`: an older Worker sends no host/guest fields; don't treat that as a wrong key.
+      if (hostKey() && data.event.host === false) {
+        write('potluck:host', null);
+        syncHost();
+        say('That host key didn’t work.', 'error');
+      }
+      showGuest(data.event.guest !== false);
+      showHostPassword(data.event.password);
+      if (data.event.host && status.textContent === 'Checking the host key…') say('Host mode on. Remove buttons are showing on every entry.', 'good');
       loaded = true;
       if (status.dataset.kind === 'load') say('');
       if (editingId && !data.signups.some((s) => s.id === editingId)) { stopEdit(); say('That entry was removed.', 'error'); }
@@ -131,8 +150,8 @@ function initPotluck(root) {
       if (!firstPaint && !seen.has(it.id) && !reducedMotion()) li.classList.add('is-new');
       seen.add(it.id);
 
-      const emoji = el('span', 'dish-emoji', c ? c.emoji : '🍽️');
-      emoji.setAttribute('aria-hidden', 'true');
+      const emoji = el('span', 'dish-icon');
+      emoji.append(icon(c ? it.category : 'other'));
       const body = el('span', 'dish-body');
       body.append(el('span', 'dish-name', it.dish));
       const who = el('span', 'dish-who', it.name);
@@ -142,7 +161,7 @@ function initPotluck(root) {
 
       if (canChange(it)) {
         const actions = el('span', 'dish-actions');
-        if (mine[it.id] && open && form) {
+        if (mine[it.id] && open && form && isGuest) {
           const edit = el('button', '', 'Edit');
           edit.type = 'button';
           edit.setAttribute('aria-label', `Edit ${it.dish}`);
@@ -192,7 +211,7 @@ function initPotluck(root) {
         } else {
           const res = await call('POST', `/api/events/${encodeURIComponent(slug)}/signups`, {
             name, dish, category, hp_note: form.elements.hp_note.value,
-          });
+          }, { host: hostKey() });
           if (!res.signup) throw new Error('Couldn’t save that one. Try again?');
           saveToken(res.signup.id, res.token);
           say(`You’re on the list! See you there, ${name}. 🎉`, 'good');
@@ -204,6 +223,7 @@ function initPotluck(root) {
         await refresh();
       } catch (err) {
         if (err.status === 404 && editingId) { stopEdit(); busy = false; await refresh(); }
+        if (err.status === 403 && !editingId && locked) { write(guestStore, null); showGuest(false); }
         say(err.message, 'error');
       } finally {
         busy = false;
@@ -284,8 +304,71 @@ function initPotluck(root) {
     }
   }
 
+  // ---- guest password (locked events) ---------------------------------------------------------------
+  // Guests unlock once per phone: the typed password is swapped for a long guest key, which is kept.
+  function showGuest(guest) {
+    if (!locked || !open || !form || !lockForm) return;
+    const changed = guest !== isGuest;
+    isGuest = guest;
+    // Locked out mid-edit (e.g. the password changed): the rows now hold initials, so never let
+    // them seed the form, or saving would overwrite a real name with "M.L.".
+    if (!guest && editingId) stopEdit();
+    form.hidden = !guest;
+    lockForm.hidden = guest;
+    if (changed) renderList(); // show or hide Edit buttons
+  }
+
+  async function unlock(password) {
+    const btn = lockForm?.querySelector('[data-unlock]');
+    if (btn) btn.disabled = true;
+    busy = true;
+    writes += 1;
+    try {
+      const res = await call('POST', `/api/events/${encodeURIComponent(slug)}/unlock`, { password });
+      if (res.guestKey) write(guestStore, res.guestKey);
+      lastJson = ''; // names replace initials, so redraw even if nothing else changed
+      showGuest(true);
+      say('You’re in! Here’s who’s bringing what. 🎉', 'good');
+      return true;
+    } catch (err) {
+      showGuest(false);
+      say(err.message, 'error');
+      return false;
+    } finally {
+      busy = false;
+      if (btn) btn.disabled = false;
+      await refresh();
+    }
+  }
+
+  if (lockForm) {
+    lockForm.addEventListener('submit', async (ev) => {
+      ev.preventDefault();
+      const input = lockForm.elements.password;
+      if (!input.value.trim()) { say('Type the password from the Partiful invite.', 'error'); input.focus(); return; }
+      if (await unlock(input.value.trim())) {
+        input.value = '';
+        form?.elements.name.focus({ preventScroll: true });
+      }
+    });
+  }
+
+  // If the link's password didn't work (typo, or throttled), leave it in the box to retry or fix.
+  async function unlockFromLink(pw) {
+    if (!(await unlock(pw)) && lockForm) lockForm.elements.password.value = pw;
+  }
+
+  // A link like /events/<slug>/#p=DUMPLING-7Q4KXM unlocks straight away, then tidies the address bar.
+  function passwordFromHash() {
+    const m = location.hash.match(/^#p=(.+)$/);
+    if (!m) return null;
+    history.replaceState(null, '', location.pathname + location.search);
+    try { return decodeURIComponent(m[1]); } catch { return m[1]; }
+  }
+
   function closeForm() {
     open = false;
+    if (lockForm) lockForm.remove();
     if (form) {
       const p = el('p', 'potluck-closed', 'Sign-ups are closed. Here’s the final spread.');
       form.replaceWith(p);
@@ -297,23 +380,58 @@ function initPotluck(root) {
     const on = location.hash === '#host' || Boolean(hostKey());
     hostPanel.hidden = !on;
     hostPanel.classList.toggle('is-unlocked', Boolean(hostKey()));
+    if (!hostKey()) showHostPassword(null);
     renderList();
+  }
+
+  let hostPassword = null;
+  function showHostPassword(pw) {
+    const box = hostPanel.querySelector('[data-host-pass]');
+    hostPassword = pw || null;
+    if (!box) return;
+    box.hidden = !hostPassword;
+    box.querySelector('[data-host-pass-value]').textContent = hostPassword || '';
+  }
+  for (const btn of hostPanel.querySelectorAll('[data-copy]')) {
+    btn.addEventListener('click', async () => {
+      if (!hostPassword) return;
+      const link = `${location.origin}${location.pathname}#p=${encodeURIComponent(hostPassword)}`;
+      const text = btn.dataset.copy === 'password' ? hostPassword
+        : `Potluck! See what people are bringing and add yours: ${link}\n(If it asks, the password is ${hostPassword})`;
+      try {
+        await navigator.clipboard.writeText(text);
+        const label = btn.dataset.label ??= btn.textContent;
+        btn.textContent = 'Copied ✓';
+        setTimeout(() => { btn.textContent = label; }, 1800);
+      } catch {
+        say('Couldn’t copy. Select the password and copy it by hand.', 'error');
+      }
+    });
   }
   hostPanel.querySelector('[data-host-form]').addEventListener('submit', (ev) => {
     ev.preventDefault();
     const input = hostPanel.querySelector('input');
     if (input.value.trim()) write('potluck:host', input.value.trim());
     input.value = '';
-    say('Host mode on. Remove buttons are showing on every entry.', 'good');
+    writes += 1; // drop any poll already in flight without the key, so it can't "reject" it
+    say('Checking the host key…');
     syncHost();
+    lastJson = '';
+    refresh();
   });
   hostPanel.querySelector('[data-host-off]').addEventListener('click', () => {
     write('potluck:host', null);
+    writes += 1;
     if (location.hash === '#host') history.replaceState(null, '', location.pathname);
     say('');
     syncHost();
+    lastJson = '';
+    refresh();
   });
-  window.addEventListener('hashchange', syncHost);
+  window.addEventListener('hashchange', () => {
+    const pw = passwordFromHash();
+    if (pw && locked) unlockFromLink(pw); else syncHost();
+  });
 
   // ---- status line ---------------------------------------------------------------------------------------
   function say(text, kind = '', tag = '') {
@@ -324,7 +442,9 @@ function initPotluck(root) {
 
   // ---- go --------------------------------------------------------------------------------------------------
   syncHost();
-  refresh();
+  showGuest(Boolean(guestKey() || hostKey())); // best guess until the first answer arrives
+  const linkPassword = passwordFromHash();
+  if (linkPassword && locked) unlockFromLink(linkPassword); else refresh();
   setInterval(() => { if (document.visibilityState === 'visible') refresh(); }, POLL_MS);
   document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') refresh(); });
 }
@@ -336,6 +456,18 @@ function el(tag, cls, text) {
   if (cls) n.className = cls;
   if (text != null) n.textContent = text;
   return n;
+}
+
+function icon(cat) {
+  const ns = 'http://www.w3.org/2000/svg';
+  const svg = document.createElementNS(ns, 'svg');
+  svg.setAttribute('class', 'pl-icon');
+  svg.setAttribute('aria-hidden', 'true');
+  svg.setAttribute('focusable', 'false');
+  const use = document.createElementNS(ns, 'use');
+  use.setAttribute('href', `/assets/img/potluck.svg#pl-${cat}`);
+  svg.append(use);
+  return svg;
 }
 
 function safeJson(s) { try { return JSON.parse(s); } catch { return null; } }

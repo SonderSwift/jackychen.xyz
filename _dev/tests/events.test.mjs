@@ -5,6 +5,7 @@ import {
   parseFrontMatter, parseWishlist, parsePhoto, splitRecap, renderMarkdown, inline,
   zonedToUtc, describeWhen, buildIcs, readEvent, isPast,
 } from '../events-lib.mjs';
+import { initials } from '../../_worker/src/initials.js';
 
 const SAMPLE = `---
 title: Dumpling Night
@@ -107,4 +108,24 @@ test('readEvent fills defaults and validates', () => {
   assert.throws(() => readEvent(SAMPLE, 'Bad Name'), /file names/);
   assert.throws(() => readEvent(SAMPLE.replace('https://partiful', 'http://partiful'), 'ok'), /partiful/);
   assert.throws(() => readEvent(SAMPLE.replace('title: Dumpling Night\n', ''), 'ok'), /missing "title:"/);
+  assert.equal(e.password, true, 'guest password is on unless turned off');
+  assert.equal(e.passwordVersion, 1);
+  const off = readEvent(SAMPLE.replace('blurb:', 'password: off\npassword_version: 3\nblurb:'), 'ok');
+  assert.equal(off.password, false);
+  assert.equal(off.passwordVersion, 3);
+  assert.throws(() => readEvent(SAMPLE.replace('blurb:', 'password: maybe\nblurb:'), 'ok'), /password should be on or off/);
+  assert.throws(() => readEvent(SAMPLE.replace('blurb:', 'password_version: 0\nblurb:'), 'ok'), /password_version/);
+});
+
+test('initials: what strangers and the archive see', () => {
+  assert.equal(initials('Mei Lin'), 'M.L.');
+  assert.equal(initials('mei'), 'M.');
+  assert.equal(initials('Ana de la Cruz'), 'A.C.');
+  assert.equal(initials('🥟 Bo'), 'B.');
+  assert.equal(initials('🥟'), 'Guest');
+  assert.equal(initials('   '), 'Guest');
+  assert.equal(initials('陳家豪'), '陳.');
+  assert.equal(initials('élodie roux'), 'É.R.');
+  assert.equal(initials('M.L.'), 'M.L.', 'already masked stays put');
+  assert.equal(initials(initials('Jacky Chen')), 'J.C.');
 });

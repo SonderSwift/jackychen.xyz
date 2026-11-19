@@ -32,6 +32,14 @@
 [data-cat="supplies"] { --cat: var(--c-supplies); }
 [data-cat="other"] { --cat: var(--c-other); }
 
+/* Food stickers (assets/img/potluck.svg). Lighter body in light mode so the faces read. */
+.pl-icon {
+  width: 1.4em; height: 1.4em; flex: none; display: inline-block; vertical-align: -.3em;
+  color: color-mix(in srgb, var(--cat, var(--c-other)) 62%, #fff);
+  filter: drop-shadow(1px 0 0 #fff8ee) drop-shadow(-1px 0 0 #fff8ee) drop-shadow(0 1px 0 #fff8ee) drop-shadow(0 -1px 0 #fff8ee) drop-shadow(0 1px 1.5px rgba(40, 25, 10, .25));
+}
+@media (prefers-color-scheme: dark) { .pl-icon { color: var(--cat, var(--c-other)); } }
+
 .events-body {
   background-image: radial-gradient(color-mix(in srgb, var(--rule) 70%, transparent) 1px, transparent 1px);
   background-size: 22px 22px;
@@ -254,10 +262,12 @@
 .dish:nth-child(3n+2) { transform: rotate(.3deg); }
 .dish.is-new { animation: plop .5s cubic-bezier(.3, 1.5, .5, 1); }
 @keyframes plop { from { transform: scale(.85) rotate(-3deg); opacity: 0; } }
-.dish-emoji {
-  width: 44px; height: 44px; border-radius: 12px; display: grid; place-items: center; font-size: 24px;
+.dish-icon {
+  width: 48px; height: 48px; border-radius: 12px; display: grid; place-items: center;
   background: color-mix(in srgb, var(--cat) 14%, var(--paper));
 }
+.dish-icon .pl-icon { width: 38px; height: 38px; transform: rotate(-4deg); }
+.dish:nth-child(even) .dish-icon .pl-icon { transform: rotate(4deg); }
 .dish-body { display: grid; gap: 2px; min-width: 0; }
 .dish-name { font: 400 19px/1.25 var(--serif); overflow-wrap: anywhere; }
 .dish-who { font-size: 14.5px; color: var(--muted); overflow-wrap: anywhere; }
@@ -282,6 +292,13 @@
 .host-panel { margin-top: 12px; padding: 16px; border-radius: 14px; border: 1.5px dashed var(--accent); display: grid; gap: 10px; font-size: 15px; max-width: 640px; }
 .host-panel form { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
 .host-panel input { flex: 1 1 200px; width: auto; }
+.potluck-lock { gap: 14px; margin-top: 8px; border-radius: 18px; box-shadow: var(--shadow); background: var(--card); max-width: 640px; }
+.lock-row { display: flex; flex-wrap: wrap; gap: 10px; }
+.lock-row input { flex: 1 1 220px; font-family: var(--mono) !important; letter-spacing: .06em; }
+.lock-row input::placeholder { font-family: var(--sans); letter-spacing: 0; }
+.host-pass { display: grid; gap: 8px; padding-top: 10px; border-top: 1px dashed var(--rule); }
+.host-pass code { font: 600 17px/1 var(--mono); letter-spacing: .06em; padding: 4px 8px; border-radius: 8px; background: var(--paper); user-select: all; }
+.host-pass-actions { display: flex; flex-wrap: wrap; gap: 8px; }
 .host-panel.is-unlocked form input, .host-panel.is-unlocked form button[type="submit"], .host-panel.is-unlocked label { display: none; }
 
 /* confetti, of the food kind */
